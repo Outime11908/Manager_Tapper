@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manager Tapper</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Manager Tapper</h1>
+    <p>Control de capital, inventario y ganancias con sugerencias de venta</p>
+  </header>
+
+  <main>
+    <section id="resumen" class="card">
+      <h2>Resumen financiero</h2>
+      <div id="resumen-contenido">Cargando…</div>
+    </section>
+
+    <section id="capital" class="card">
+      <h2>Capital invertido</h2>
+      <form id="form-capital">
+        <input type="number" step="0.01" name="monto" placeholder="Monto" required />
+        <input type="text" name="descripcion" placeholder="Descripción (opcional)" />
+        <button type="submit">Registrar aporte</button>
+      </form>
+    </section>
+
+    <section id="categorias" class="card">
+      <h2>Categorías</h2>
+      <form id="form-categoria">
+        <input type="text" name="nombre" placeholder="Nombre de la categoría" required />
+        <button type="submit">Agregar categoría</button>
+      </form>
+      <ul id="lista-categorias"></ul>
+    </section>
+
+    <section id="catalogo" class="card">
+      <h2>Catálogo de productos</h2>
+      <form id="form-producto">
+        <input type="hidden" name="producto_id" value="" />
+        <input type="text" name="nombre" placeholder="Nombre" required />
+        <input type="number" step="0.01" name="costo" placeholder="Costo" required />
+        <input type="number" step="0.01" name="precio" placeholder="Precio de venta" required />
+        <input type="number" name="stock" placeholder="Stock inicial" required />
+        <select name="categoria_id" id="select-categoria-producto">
+          <option value="">Sin categoría</option>
+        </select>
+        <button type="submit" id="btn-guardar-producto">Agregar producto</button>
+        <button type="button" id="btn-cancelar-edicion" hidden>Cancelar edición</button>
+      </form>
+
+      <form id="form-filtros-catalogo" class="filtros">
+        <input type="search" id="buscador-productos" placeholder="Buscar producto…" />
+        <select id="filtro-categoria">
+          <option value="">Todas las categorías</option>
+        </select>
+      </form>
+
+      <table id="tabla-productos">
+        <thead>
+          <tr><th>Producto</th><th>Categoría</th><th>Costo</th><th>Precio</th><th>Stock</th><th>Margen</th><th>Acciones</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="pos" class="card">
+      <h2>Punto de venta</h2>
+
+      <form id="form-agregar-carrito">
+        <select name="producto_id" id="select-producto-pos" required></select>
+        <input type="number" name="cantidad" placeholder="Cantidad" min="1" value="1" required />
+        <button type="submit">Agregar al carrito</button>
+      </form>
+
+      <table id="tabla-carrito">
+        <thead>
+          <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="carrito-total">Total: $0.00</div>
+
+      <form id="form-cobro">
+        <select name="metodo_pago" id="metodo-pago">
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta">Tarjeta</option>
+        </select>
+        <input type="number" step="0.01" id="monto-recibido" placeholder="Monto recibido" />
+        <button type="submit" id="btn-cobrar">Cobrar</button>
+      </form>
+      <div id="cambio-calculado"></div>
+
+      <div id="recibo" class="recibo" hidden>
+        <div id="recibo-contenido"></div>
+        <div class="recibo-acciones">
+          <button type="button" id="btn-imprimir">Imprimir</button>
+          <button type="button" id="btn-nueva-venta">Nueva venta</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="alertas" class="card">
+      <h2>Alertas de inventario</h2>
+      <ul id="lista-alertas"></ul>
+    </section>
+
+    <section id="historial" class="card">
+      <h2>Historial de ventas</h2>
+      <table id="tabla-tickets">
+        <thead>
+          <tr><th>Fecha</th><th>Método</th><th>Artículos</th><th>Total</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="detalle-ticket" class="recibo" hidden>
+        <div id="detalle-ticket-contenido"></div>
+        <div class="recibo-acciones">
+          <button type="button" id="btn-cerrar-detalle">Cerrar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="ranking" class="card">
+      <h2>Ranking de productos y estrategias sugeridas</h2>
+      <canvas id="grafico-ranking" height="120"></canvas>
+      <table id="tabla-ranking">
+        <thead>
+          <tr><th>Producto</th><th>Unidades</th><th>Ganancia</th><th>Margen</th><th>Estrategia sugerida</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="simulador" class="card">
+      <h2>Simulador de cambio de precio</h2>
+      <form id="form-simulador">
+        <select name="producto_id" id="select-producto-simulador" required></select>
+        <input type="number" step="1" name="porcentaje" placeholder="% de cambio (ej. 10 o -15)" required />
+        <button type="submit">Simular</button>
+      </form>
+      <div id="resultado-simulador"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

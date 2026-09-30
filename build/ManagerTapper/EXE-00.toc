@@ -1,0 +1,497 @@
+('C:\\Users\\Cass PC\\Desktop\\manager_tapper\\dist\\ManagerTapper.exe',
+ False,
+ False,
+ False,
+ 'C:\\Users\\Cass '
+ 'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\bootloader\\images\\icon-windowed.ico',
+ None,
+ False,
+ False,
+ b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<assembly xmlns='
+ b'"urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">\n  <trustInfo x'
+ b'mlns="urn:schemas-microsoft-com:asm.v3">\n    <security>\n      <requested'
+ b'Privileges>\n        <requestedExecutionLevel level="asInvoker" uiAccess='
+ b'"false"/>\n      </requestedPrivileges>\n    </security>\n  </trustInfo>\n  '
+ b'<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">\n    <'
+ b'application>\n      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f'
+ b'0}"/>\n      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>\n '
+ b'     <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>\n      <s'
+ b'upportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>\n      <supporte'
+ b'dOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>\n    </application>\n  <'
+ b'/compatibility>\n  <application xmlns="urn:schemas-microsoft-com:asm.v3">'
+ b'\n    <windowsSettings>\n      <longPathAware xmlns="http://schemas.micros'
+ b'oft.com/SMI/2016/WindowsSettings">true</longPathAware>\n    </windowsSett'
+ b'ings>\n  </application>\n  <dependency>\n    <dependentAssembly>\n      <ass'
+ b'emblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version='
+ b'"6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" langua'
+ b'ge="*"/>\n    </dependentAssembly>\n  </dependency>\n</assembly>',
+ True,
+ False,
+ None,
+ None,
+ None,
+ 'C:\\Users\\Cass '
+ 'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\ManagerTapper.pkg',
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('pyi_rth_multiprocessing',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py',
+   'PYSOURCE'),
+  ('pyi_rth_setuptools',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_setuptools.py',
+   'PYSOURCE'),
+  ('desktop_app',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\desktop_app.py',
+   'PYSOURCE'),
+  ('webview\\lib\\Microsoft.Web.WebView2.Core.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\Microsoft.Web.WebView2.Core.dll',
+   'BINARY'),
+  ('webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
+   'BINARY'),
+  ('webview\\lib\\WebBrowserInterop.x64.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\WebBrowserInterop.x64.dll',
+   'BINARY'),
+  ('webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+   'BINARY'),
+  ('webview\\lib\\runtimes\\win-x86\\native\\WebView2Loader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-x86\\native\\WebView2Loader.dll',
+   'BINARY'),
+  ('webview\\lib\\WebBrowserInterop.x86.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\WebBrowserInterop.x86.dll',
+   'BINARY'),
+  ('webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
+   'BINARY'),
+  ('pythonnet\\runtime\\Python.Runtime.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\pythonnet\\runtime\\Python.Runtime.dll',
+   'BINARY'),
+  ('python314.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\python314.dll',
+   'BINARY'),
+  ('clr_loader\\ffi\\dlls\\amd64\\ClrLoader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\clr_loader\\ffi\\dlls\\amd64\\ClrLoader.dll',
+   'BINARY'),
+  ('clr_loader\\ffi\\dlls\\x86\\ClrLoader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\clr_loader\\ffi\\dlls\\x86\\ClrLoader.dll',
+   'BINARY'),
+  ('_zstd.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_zstd.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('_decimal.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('select.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('unicodedata.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('_overlapped.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_overlapped.pyd',
+   'EXTENSION'),
+  ('_asyncio.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_asyncio.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('_ctypes.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_ctypes.pyd',
+   'EXTENSION'),
+  ('_multiprocessing.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_multiprocessing.pyd',
+   'EXTENSION'),
+  ('pyexpat.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\pyexpat.pyd',
+   'EXTENSION'),
+  ('_ssl.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_ssl.pyd',
+   'EXTENSION'),
+  ('_wmi.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_wmi.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\sql\\_cache_key_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\sql\\_cache_key_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\sql\\_util_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\sql\\_util_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\engine\\_util_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\engine\\_util_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\engine\\_row_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\engine\\_row_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\engine\\_result_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\engine\\_result_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\engine\\_processors_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\engine\\_processors_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\util\\_immutabledict_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\util\\_immutabledict_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('sqlalchemy\\util\\_collections_cy.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\util\\_collections_cy.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('_uuid.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_uuid.pyd',
+   'EXTENSION'),
+  ('markupsafe\\_speedups.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe\\_speedups.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('_sqlite3.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_sqlite3.pyd',
+   'EXTENSION'),
+  ('_cffi_backend.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\_cffi_backend.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('_elementtree.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_elementtree.pyd',
+   'EXTENSION'),
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('libcrypto-3.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libcrypto-3.dll',
+   'BINARY'),
+  ('libffi-8.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libffi-8.dll',
+   'BINARY'),
+  ('libssl-3.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libssl-3.dll',
+   'BINARY'),
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('sqlite3.dll',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\sqlite3.dll',
+   'BINARY'),
+  ('static\\app.js',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\static\\app.js',
+   'DATA'),
+  ('static\\app.ts',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\static\\app.ts',
+   'DATA'),
+  ('static\\style.css',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\static\\style.css',
+   'DATA'),
+  ('templates\\index.html',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\templates\\index.html',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'DATA'),
+  ('setuptools\\_vendor\\jaraco\\text\\Lorem ipsum.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
+   'ipsum.txt',
+   'DATA'),
+  ('webview\\lib\\pywebview-android.jar',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\pywebview-android.jar',
+   'DATA'),
+  ('webview\\js\\lib\\polyfill.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\lib\\polyfill.js',
+   'DATA'),
+  ('webview\\js\\finish.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\finish.js',
+   'DATA'),
+  ('webview\\js\\api.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\api.js',
+   'DATA'),
+  ('webview\\js\\lib\\dom_json.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\lib\\dom_json.js',
+   'DATA'),
+  ('webview\\js\\state.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\state.js',
+   'DATA'),
+  ('webview\\js\\customize.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\customize.js',
+   'DATA'),
+  ('pythonnet\\runtime\\Python.Runtime.deps.json',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\pythonnet\\runtime\\Python.Runtime.deps.json',
+   'DATA'),
+  ('pythonnet\\runtime\\Python.Runtime.xml',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\pythonnet\\runtime\\Python.Runtime.xml',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\RECORD',
+   'DATA'),
+  ('click-8.5.0.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\RECORD',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\LICENSE.txt',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\METADATA',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\entry_points.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\entry_points.txt',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\REQUESTED',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\REQUESTED',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\LICENSE.rst',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\LICENSE.rst',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\INSTALLER',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\RECORD',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\WHEEL',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
+   'DATA'),
+  ('click-8.5.0.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\WHEEL',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('click-8.5.0.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\RECORD',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('click-8.5.0.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\WHEEL',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\WHEEL',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\METADATA',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\top_level.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\top_level.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'DATA'),
+  ('click-8.5.0.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('base_library.zip',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\build\\ManagerTapper\\base_library.zip',
+   'DATA')],
+ [],
+ False,
+ False,
+ 1790715502,
+ [('runw.exe',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
+   'EXECUTABLE')],
+ 'C:\\Users\\Cass '
+ 'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\python314.dll')
