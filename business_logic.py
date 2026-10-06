@@ -2,14 +2,17 @@
 Toda la lógica de cálculo de Manager Tapper vive aquí, separada de las
 rutas de Flask, para que sea fácil de probar y de explicar en el proyecto.
 """
-from models import db, Producto, DetalleVenta, Capital
+from collections import defaultdict
+from datetime import datetime
+
+from models import db, Producto, DetalleVenta, Ticket, Capital, Gasto, Meta
 
 
 # ---------------------------------------------------------------------------
-# Ganancias y punto de equilibrio
+# Ganancias, gastos y punto de equilibrio
 # ---------------------------------------------------------------------------
 
-def ganancia_total():
+def ganancia_bruta_total():
     """Suma la ganancia (precio - costo) x cantidad de todas las líneas de venta."""
     total = 0.0
     for detalle in DetalleVenta.query.all():
@@ -22,23 +25,36 @@ def capital_total_invertido():
     return total or 0.0
 
 
+def gastos_totales():
+    total = db.session.query(db.func.sum(Gasto.monto)).scalar()
+    return total or 0.0
+
+
 def resumen_financiero():
     """
     Punto de equilibrio: compara el capital invertido contra la ganancia
-    acumulada por ventas. Si la ganancia todavía no alcanza al capital,
-    "falta_para_recuperar" indica cuánto dinero de ganancia falta por generar.
+    bruta (por venta de producto) acumulada. "falta_para_recuperar" indica
+    cuánto dinero de ganancia falta por generar.
+
+    "ganancia_neta" resta los gastos operativos (renta, luz, etc.) de esa
+    ganancia bruta -- es la ganancia real del negocio. El punto de
+    equilibrio se deja calculado sobre la ganancia bruta por producto para
+    no mezclar dos cosas distintas en una sola métrica.
     """
-    ganancia = ganancia_total()
+    ganancia_bruta = ganancia_bruta_total()
     capital = capital_total_invertido()
-    falta_para_recuperar = max(capital - ganancia, 0.0)
-    punto_equilibrio_alcanzado = ganancia >= capital and capital > 0
+    gastos = gastos_totales()
+    falta_para_recuperar = max(capital - ganancia_bruta, 0.0)
+    punto_equilibrio_alcanzado = ganancia_bruta >= capital and capital > 0
 
     return {
         "capital_invertido": round(capital, 2),
-        "ganancia_total": round(ganancia, 2),
+        "ganancia_bruta": round(ganancia_bruta, 2),
+        "gastos_totales": round(gastos, 2),
+        "ganancia_neta": round(ganancia_bruta - gastos, 2),
         "falta_para_recuperar_capital": round(falta_para_recuperar, 2),
         "punto_equilibrio_alcanzado": punto_equilibrio_alcanzado,
-        "excedente": round(ganancia - capital, 2) if punto_equilibrio_alcanzado else 0.0,
+        "excedente": round(ganancia_bruta - capital, 2) if punto_equilibrio_alcanzado else 0.0,
     }
 
 
@@ -61,13 +77,8 @@ def ranking_productos():
     filas = []
     for p in productos:
         unidades, ganancia = _metricas_producto(p)
-        filas.append({
-            "producto": p,
-            "unidades_vendidas": unidades,
-            "ganancia_generada": ganancia,
-        })
+        filas.append({"producto": p, "unidades_vendidas": unidades, "ganancia_generada": ganancia})
 
-    # Rotación relativa: comparamos contra la mediana de unidades vendidas
     unidades_ordenadas = sorted(f["unidades_vendidas"] for f in filas)
     mitad = len(unidades_ordenadas) // 2
     mediana = unidades_ordenadas[mitad] if unidades_ordenadas else 0
@@ -108,11 +119,6 @@ def _sugerir_estrategia(producto, rotacion_alta):
 # ---------------------------------------------------------------------------
 
 def simular_cambio_precio(producto, porcentaje):
-    """
-    Simula subir/bajar el precio de un producto un cierto % y proyecta
-    la ganancia usando como estimado la cantidad ya vendida históricamente.
-    `porcentaje` puede ser positivo (alza) o negativo (baja), ej. 10 o -15.
-    """
     unidades_vendidas, ganancia_actual = _metricas_producto(producto)
 
     nuevo_precio = producto.precio_actual * (1 + porcentaje / 100)
@@ -140,15 +146,14 @@ class ErrorVenta(Exception):
     """Error de validación al registrar una venta (carrito, stock, pago, etc.)."""
 
 
-def registrar_ticket(items_data, metodo_pago, monto_pagado=None):
-    from models import Ticket, DetalleVenta  # import local para evitar ciclo
-
+def registrar_ticket(items_data, metodo_pago, monto_pagado=None, cliente_id=None):
     if not items_data:
         raise ErrorVenta("El carrito está vacío")
-    if metodo_pago not in ("efectivo", "tarjeta"):
-        raise ErrorVenta("El método de pago debe ser 'efectivo' o 'tarjeta'")
+    if metodo_pago not in ("efectivo", "tarjeta", "credito"):
+        raise ErrorVenta("El método de pago debe ser 'efectivo', 'tarjeta' o 'credito'")
+    if metodo_pago == "credito" and not cliente_id:
+        raise ErrorVenta("Una venta a crédito necesita un cliente")
 
-    # Validar todo ANTES de tocar la base de datos
     renglones = []
     total = 0.0
     for item in items_data:
@@ -171,7 +176,14 @@ def registrar_ticket(items_data, metodo_pago, monto_pagado=None):
             raise ErrorVenta("El monto pagado es menor al total de la venta")
         cambio = monto_pagado - total
 
-    ticket = Ticket(metodo_pago=metodo_pago, total=total, monto_pagado=monto_pagado, cambio=cambio)
+    ticket = Ticket(
+        metodo_pago=metodo_pago,
+        total=total,
+        monto_pagado=monto_pagado,
+        cambio=cambio,
+        cliente_id=cliente_id,
+        pagado=(metodo_pago != "credito"),
+    )
     db.session.add(ticket)
     db.session.flush()  # asigna ticket.id sin cerrar la transacción
 
@@ -187,3 +199,53 @@ def registrar_ticket(items_data, metodo_pago, monto_pagado=None):
 
     db.session.commit()
     return ticket
+
+
+def marcar_ticket_pagado(ticket):
+    ticket.pagado = True
+    ticket.pagado_en = datetime.utcnow()
+    db.session.commit()
+    return ticket
+
+
+def cuentas_por_cobrar():
+    return Ticket.query.filter_by(pagado=False).order_by(Ticket.fecha.desc()).all()
+
+
+# ---------------------------------------------------------------------------
+# Ventas por periodo (para la gráfica de tendencia)
+# ---------------------------------------------------------------------------
+
+def ventas_por_periodo(agrupacion="dia"):
+    if agrupacion == "semana":
+        clave = lambda f: f.strftime("%G-W%V")
+    elif agrupacion == "mes":
+        clave = lambda f: f.strftime("%Y-%m")
+    else:
+        clave = lambda f: f.strftime("%Y-%m-%d")
+
+    totales = defaultdict(float)
+    for ticket in Ticket.query.all():
+        totales[clave(ticket.fecha)] += ticket.total
+
+    periodos = sorted(totales.keys())
+    return [{"periodo": p, "total": round(totales[p], 2)} for p in periodos]
+
+
+# ---------------------------------------------------------------------------
+# Metas de venta
+# ---------------------------------------------------------------------------
+
+def progreso_metas():
+    metas = Meta.query.order_by(Meta.fecha_inicio.desc()).all()
+    resultado = []
+    for m in metas:
+        acumulado = 0.0
+        for t in Ticket.query.filter(Ticket.fecha >= m.fecha_inicio, Ticket.fecha <= m.fecha_fin).all():
+            acumulado += t.total
+        porcentaje = (acumulado / m.monto_objetivo * 100) if m.monto_objetivo else 0
+        data = m.to_dict()
+        data["acumulado"] = round(acumulado, 2)
+        data["porcentaje"] = round(min(porcentaje, 999), 1)
+        resultado.append(data)
+    return resultado

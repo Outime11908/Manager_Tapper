@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manager Tapper · Configuración inicial</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="pagina-auth">
+  <main class="auth-main">
+    <section class="card auth-card">
+      <h2>Crea tu cuenta</h2>
+      <p class="auth-intro">Es la primera vez que abres Manager Tapper. Crea el usuario con el que vas a entrar.</p>
+      {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
+      <form method="post" class="auth-form">
+        <label>Usuario
+          <input type="text" name="username" required autofocus />
+        </label>
+        <label>Contraseña
+          <input type="password" name="password" minlength="4" required />
+        </label>
+        <button type="submit">Crear cuenta y entrar</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

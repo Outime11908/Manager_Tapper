@@ -2,12 +2,17 @@
 Modelos de datos de Manager Tapper.
 
 Tablas:
+- Usuario: la cuenta con la que se inicia sesión (contraseña con hash)
 - Categoria: categorías para organizar el catálogo
 - Producto: catálogo (nombre, costo, precio actual, stock, categoría, activo)
 - HistorialPrecio: registro de cada cambio de precio de un producto
-- Ticket: una venta del punto de venta (puede tener varios productos)
+- Cliente: clientes para ventas a crédito
+- Ticket: una venta del punto de venta (puede tener varios productos,
+  método de pago efectivo/tarjeta/crédito)
 - DetalleVenta: cada línea de producto dentro de un Ticket
 - Capital: aportes de capital invertido en el negocio
+- Gasto: gastos operativos del negocio aparte del costo de producto (renta, luz, etc.)
+- Meta: meta de ventas para un rango de fechas
 - ConteoInventario: conteos físicos para detectar desfases/pérdidas
 
 Nota sobre "eliminar" productos: un producto nunca se borra de verdad si ya
@@ -21,6 +26,14 @@ db = SQLAlchemy()
 
 # Debajo de este nivel de stock, un producto se considera "stock bajo"
 UMBRAL_STOCK_BAJO = 5
+
+
+class Usuario(db.Model):
+    __tablename__ = "usuarios"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False, unique=True)
+    password_hash = db.Column(db.String(255), nullable=False)
 
 
 class Categoria(db.Model):
@@ -100,16 +113,32 @@ class HistorialPrecio(db.Model):
         }
 
 
+class Cliente(db.Model):
+    __tablename__ = "clientes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(120), nullable=False)
+    contacto = db.Column(db.String(120))
+
+    tickets = db.relationship("Ticket", backref="cliente", lazy=True)
+
+    def to_dict(self):
+        return {"id": self.id, "nombre": self.nombre, "contacto": self.contacto}
+
+
 class Ticket(db.Model):
     """Una venta del punto de venta. Puede incluir varios productos."""
     __tablename__ = "tickets"
 
     id = db.Column(db.Integer, primary_key=True)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
-    metodo_pago = db.Column(db.String(20), nullable=False)  # "efectivo" | "tarjeta"
+    metodo_pago = db.Column(db.String(20), nullable=False)  # "efectivo" | "tarjeta" | "credito"
     total = db.Column(db.Float, nullable=False)
     monto_pagado = db.Column(db.Float)  # solo aplica si metodo_pago == "efectivo"
     cambio = db.Column(db.Float)        # solo aplica si metodo_pago == "efectivo"
+    cliente_id = db.Column(db.Integer, db.ForeignKey("clientes.id"), nullable=True)
+    pagado = db.Column(db.Boolean, nullable=False, default=True)  # False mientras una venta a credito siga pendiente
+    pagado_en = db.Column(db.DateTime, nullable=True)
 
     items = db.relationship(
         "DetalleVenta", backref="ticket", lazy=True, order_by="DetalleVenta.id"
@@ -123,6 +152,10 @@ class Ticket(db.Model):
             "total": round(self.total, 2),
             "monto_pagado": round(self.monto_pagado, 2) if self.monto_pagado is not None else None,
             "cambio": round(self.cambio, 2) if self.cambio is not None else None,
+            "cliente_id": self.cliente_id,
+            "cliente_nombre": self.cliente.nombre if self.cliente else None,
+            "pagado": self.pagado,
+            "pagado_en": self.pagado_en.isoformat() if self.pagado_en else None,
             "num_items": len(self.items),
         }
         if incluir_items:
@@ -177,6 +210,44 @@ class Capital(db.Model):
             "monto": self.monto,
             "descripcion": self.descripcion,
             "fecha": self.fecha.isoformat(),
+        }
+
+
+class Gasto(db.Model):
+    __tablename__ = "gastos"
+
+    id = db.Column(db.Integer, primary_key=True)
+    descripcion = db.Column(db.String(200), nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+    categoria = db.Column(db.String(80))
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "descripcion": self.descripcion,
+            "monto": self.monto,
+            "categoria": self.categoria,
+            "fecha": self.fecha.isoformat(),
+        }
+
+
+class Meta(db.Model):
+    __tablename__ = "metas"
+
+    id = db.Column(db.Integer, primary_key=True)
+    descripcion = db.Column(db.String(200), nullable=False)
+    monto_objetivo = db.Column(db.Float, nullable=False)
+    fecha_inicio = db.Column(db.DateTime, nullable=False)
+    fecha_fin = db.Column(db.DateTime, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "descripcion": self.descripcion,
+            "monto_objetivo": self.monto_objetivo,
+            "fecha_inicio": self.fecha_inicio.isoformat(),
+            "fecha_fin": self.fecha_fin.isoformat(),
         }
 
 

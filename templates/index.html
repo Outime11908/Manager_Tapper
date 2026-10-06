@@ -4,19 +4,62 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Manager Tapper</title>
+<script>
+  // Aplica el tema guardado ANTES de pintar la página, para que no haya parpadeo.
+  (function () {
+    try {
+      var t = localStorage.getItem("mt-tema");
+      if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  })();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
   <header>
-    <h1>Manager Tapper</h1>
-    <p>Control de capital, inventario y ganancias con sugerencias de venta</p>
+    <div class="header-fila">
+      <div>
+        <h1>Manager Tapper</h1>
+        <p>Control de capital, inventario y ganancias con sugerencias de venta</p>
+      </div>
+      <div class="header-acciones">
+        <button type="button" id="btn-tema">Modo oscuro</button>
+        <a href="/logout" class="enlace-salir">Cerrar sesión</a>
+      </div>
+    </div>
   </header>
 
   <main>
     <section id="resumen" class="card">
       <h2>Resumen financiero</h2>
       <div id="resumen-contenido">Cargando…</div>
+      <div class="reportes-botones">
+        <a href="/api/reportes/ventas.xlsx">Descargar ventas (Excel)</a>
+        <a href="/api/reportes/resumen.pdf">Descargar reporte (PDF)</a>
+      </div>
+    </section>
+
+    <section id="ventas-tiempo" class="card">
+      <h2>Ventas en el tiempo</h2>
+      <div class="segmentado" id="segmentado-periodo">
+        <button type="button" class="activo" data-periodo="dia">Día</button>
+        <button type="button" data-periodo="semana">Semana</button>
+        <button type="button" data-periodo="mes">Mes</button>
+      </div>
+      <canvas id="grafico-ventas-tiempo" height="110"></canvas>
+    </section>
+
+    <section id="metas" class="card">
+      <h2>Metas de venta</h2>
+      <form id="form-meta">
+        <input type="text" name="descripcion" placeholder="Descripción (ej. Ventas de octubre)" required />
+        <input type="number" step="0.01" name="monto_objetivo" placeholder="Monto objetivo" required />
+        <input type="date" name="fecha_inicio" required />
+        <input type="date" name="fecha_fin" required />
+        <button type="submit">Agregar meta</button>
+      </form>
+      <div id="lista-metas"></div>
     </section>
 
     <section id="capital" class="card">
@@ -26,6 +69,20 @@
         <input type="text" name="descripcion" placeholder="Descripción (opcional)" />
         <button type="submit">Registrar aporte</button>
       </form>
+    </section>
+
+    <section id="gastos" class="card">
+      <h2>Gastos operativos</h2>
+      <form id="form-gasto">
+        <input type="text" name="descripcion" placeholder="Descripción (ej. Renta)" required />
+        <input type="number" step="0.01" name="monto" placeholder="Monto" required />
+        <input type="text" name="categoria" placeholder="Categoría (opcional)" />
+        <button type="submit">Registrar gasto</button>
+      </form>
+      <table id="tabla-gastos">
+        <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </section>
 
     <section id="categorias" class="card">
@@ -67,6 +124,16 @@
       </table>
     </section>
 
+    <section id="clientes" class="card">
+      <h2>Clientes</h2>
+      <form id="form-cliente">
+        <input type="text" name="nombre" placeholder="Nombre" required />
+        <input type="text" name="contacto" placeholder="Contacto (opcional)" />
+        <button type="submit">Agregar cliente</button>
+      </form>
+      <ul id="lista-clientes"></ul>
+    </section>
+
     <section id="pos" class="card">
       <h2>Punto de venta</h2>
 
@@ -88,8 +155,10 @@
         <select name="metodo_pago" id="metodo-pago">
           <option value="efectivo">Efectivo</option>
           <option value="tarjeta">Tarjeta</option>
+          <option value="credito">Crédito (cliente)</option>
         </select>
         <input type="number" step="0.01" id="monto-recibido" placeholder="Monto recibido" />
+        <select id="select-cliente-credito" hidden></select>
         <button type="submit" id="btn-cobrar">Cobrar</button>
       </form>
       <div id="cambio-calculado"></div>
@@ -101,6 +170,14 @@
           <button type="button" id="btn-nueva-venta">Nueva venta</button>
         </div>
       </div>
+    </section>
+
+    <section id="cuentas-cobrar" class="card">
+      <h2>Cuentas por cobrar</h2>
+      <table id="tabla-cuentas-cobrar">
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Total</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
     </section>
 
     <section id="alertas" class="card">

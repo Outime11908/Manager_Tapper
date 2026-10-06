@@ -100,6 +100,40 @@ pueden volver a consultar en "Historial de ventas".
   lo mencionan. Por eso deja de aparecer en el catálogo, el punto de venta y
   el ranking, pero sigue intacto en los tickets antiguos.
 
+## Cuenta y acceso
+
+La primera vez que abras la app (web o `.exe`) te manda a `/setup` para crear
+un usuario y contraseña — no hay credenciales por defecto. A partir de ahí,
+cada vez que entres te pide login. La contraseña se guarda con hash
+(`werkzeug.security`), nunca en texto plano.
+
+En Render, define la variable de entorno `SECRET_KEY` (Settings ->
+Environment) con cualquier texto largo y aleatorio — si no la defines, la
+sesión se invalida cada vez que el servicio se reinicia y tendrás que volver
+a iniciar sesión más seguido.
+
+Nota: la web (Render) y el `.exe` de escritorio tienen bases de datos
+separadas, así que vas a crear una cuenta en cada una la primera vez que las
+abras.
+
+## Funciones nuevas en esta versión
+
+- **Login** con usuario/contraseña (`/setup` la primera vez).
+- **Modo oscuro** — botón en la esquina superior derecha, se recuerda entre
+  sesiones.
+- **Gastos operativos** — además de la ganancia bruta por producto, el
+  resumen ahora muestra ganancia neta (ganancia - gastos).
+- **Metas de venta** — defines un monto objetivo y un rango de fechas; la
+  app calcula cuánto llevas vendido y el % de avance.
+- **Clientes y ventas a crédito** — el punto de venta ahora acepta
+  "crédito" como método de pago (requiere elegir un cliente); la sección
+  "Cuentas por cobrar" lista lo pendiente y tiene un botón para marcarlo
+  pagado.
+- **Ventas en el tiempo** — gráfica de línea con el total vendido por
+  día/semana/mes.
+- **Reportes descargables** — botones para exportar el historial de ventas
+  en Excel y un resumen en PDF.
+
 ## Endpoints principales de la API
 
 | Método | Ruta | Qué hace |

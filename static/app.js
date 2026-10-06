@@ -10,8 +10,11 @@ async function api(url, options) {
 }
 let categoriasCache = [];
 let productosCache = [];
+let clientesCache = [];
 let carrito = [];
 let graficoRanking = null;
+let graficoVentasTiempo = null;
+let periodoActual = "dia";
 function fmt(n) {
     return n.toFixed(2);
 }
@@ -26,16 +29,37 @@ function leerFormulario(form) {
     new FormData(form).forEach((valor, clave) => (datos[clave] = String(valor)));
     return datos;
 }
+// ------------------------------------------------------------- modo oscuro
+function aplicarTema(tema) {
+    if (tema === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+    }
+    else {
+        document.documentElement.removeAttribute("data-theme");
+    }
+    document.getElementById("btn-tema").textContent = tema === "dark" ? "Modo claro" : "Modo oscuro";
+    try {
+        localStorage.setItem("mt-tema", tema);
+    }
+    catch (e) { /* almacenamiento no disponible */ }
+}
+document.getElementById("btn-tema").addEventListener("click", () => {
+    const actual = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    aplicarTema(actual === "dark" ? "light" : "dark");
+});
+aplicarTema(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
 // --------------------------------------------------------------- resumen
 async function cargarResumen() {
-    const resumen = await api("/api/resumen");
+    const r = await api("/api/resumen");
     const el = document.getElementById("resumen-contenido");
     el.innerHTML = `
-    <div class="metric"><div class="valor">$${fmt(resumen.capital_invertido)}</div><div class="etiqueta">Capital invertido</div></div>
-    <div class="metric"><div class="valor">$${fmt(resumen.ganancia_total)}</div><div class="etiqueta">Ganancia acumulada</div></div>
-    <div class="metric"><div class="valor${resumen.punto_equilibrio_alcanzado ? " valor-gain" : ""}">${resumen.punto_equilibrio_alcanzado
-        ? "¡Alcanzado! Excedente $" + fmt(resumen.excedente)
-        : "$" + fmt(resumen.falta_para_recuperar_capital)}</div><div class="etiqueta">${resumen.punto_equilibrio_alcanzado ? "Punto de equilibrio" : "Falta para el punto de equilibrio"}</div></div>
+    <div class="metric"><div class="valor">$${fmt(r.capital_invertido)}</div><div class="etiqueta">Capital invertido</div></div>
+    <div class="metric"><div class="valor">$${fmt(r.ganancia_bruta)}</div><div class="etiqueta">Ganancia bruta</div></div>
+    <div class="metric"><div class="valor">$${fmt(r.gastos_totales)}</div><div class="etiqueta">Gastos operativos</div></div>
+    <div class="metric"><div class="valor">$${fmt(r.ganancia_neta)}</div><div class="etiqueta">Ganancia neta</div></div>
+    <div class="metric"><div class="valor${r.punto_equilibrio_alcanzado ? " valor-gain" : ""}">${r.punto_equilibrio_alcanzado
+        ? "¡Alcanzado! Excedente $" + fmt(r.excedente)
+        : "$" + fmt(r.falta_para_recuperar_capital)}</div><div class="etiqueta">${r.punto_equilibrio_alcanzado ? "Punto de equilibrio" : "Falta para el punto de equilibrio"}</div></div>
   `;
 }
 // ------------------------------------------------------------ categorias
@@ -93,8 +117,7 @@ function renderTablaProductos() {
     });
 }
 function renderSelectsProducto() {
-    const activos = productosCache;
-    const opciones = activos.map((p) => `<option value="${p.id}">${p.nombre} — $${fmt(p.precio_actual)}</option>`).join("");
+    const opciones = productosCache.map((p) => `<option value="${p.id}">${p.nombre} — $${fmt(p.precio_actual)}</option>`).join("");
     document.getElementById("select-producto-pos").innerHTML = opciones;
     document.getElementById("select-producto-simulador").innerHTML = opciones;
 }
@@ -159,13 +182,7 @@ async function cargarRanking() {
     const ctx = document.getElementById("grafico-ranking").getContext("2d");
     const datos = {
         labels: filas.map((f) => f.nombre),
-        datasets: [
-            {
-                label: "Ganancia generada",
-                data: filas.map((f) => f.ganancia_generada),
-                backgroundColor: "#9C6B29",
-            },
-        ],
+        datasets: [{ label: "Ganancia generada", data: filas.map((f) => f.ganancia_generada), backgroundColor: "#9C6B29" }],
     };
     if (graficoRanking) {
         graficoRanking.data = datos;
@@ -175,6 +192,82 @@ async function cargarRanking() {
         // @ts-ignore Chart viene del script UMD cargado en index.html
         graficoRanking = new Chart(ctx, { type: "bar", data: datos, options: { responsive: true } });
     }
+}
+// ------------------------------------------------------- ventas en el tiempo
+async function cargarVentasPorPeriodo() {
+    const filas = await api(`/api/ventas-por-periodo?agrupacion=${periodoActual}`);
+    const ctx = document.getElementById("grafico-ventas-tiempo").getContext("2d");
+    const datos = {
+        labels: filas.map((f) => f.periodo),
+        datasets: [{ label: "Ventas", data: filas.map((f) => f.total), borderColor: "#9C6B29", backgroundColor: "rgba(156,107,41,0.15)", fill: true, tension: 0.2 }],
+    };
+    if (graficoVentasTiempo) {
+        graficoVentasTiempo.data = datos;
+        graficoVentasTiempo.update();
+    }
+    else {
+        // @ts-ignore
+        graficoVentasTiempo = new Chart(ctx, { type: "line", data: datos, options: { responsive: true } });
+    }
+}
+document.querySelectorAll("#segmentado-periodo button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll("#segmentado-periodo button").forEach((b) => b.classList.remove("activo"));
+        btn.classList.add("activo");
+        periodoActual = btn.dataset.periodo;
+        cargarVentasPorPeriodo();
+    });
+});
+// ------------------------------------------------------------------ gastos
+async function cargarGastos() {
+    const gastos = await api("/api/gastos");
+    const tbody = document.querySelector("#tabla-gastos tbody");
+    tbody.innerHTML = gastos.length
+        ? gastos
+            .map((g) => {
+            var _a;
+            return `
+      <tr>
+        <td>${fmtFecha(g.fecha)}</td>
+        <td>${g.descripcion}</td>
+        <td>${(_a = g.categoria) !== null && _a !== void 0 ? _a : "—"}</td>
+        <td>$${fmt(g.monto)}</td>
+      </tr>`;
+        })
+            .join("")
+        : `<tr><td colspan="4" class="vacio">Sin gastos registrados.</td></tr>`;
+}
+// ------------------------------------------------------------------- metas
+function renderMetas(metas) {
+    const cont = document.getElementById("lista-metas");
+    cont.innerHTML = metas.length
+        ? metas
+            .map((m) => `
+      <div class="meta-item">
+        <div class="meta-cabecera">
+          <strong>${m.descripcion}</strong>
+          <span>$${fmt(m.acumulado)} / $${fmt(m.monto_objetivo)}</span>
+        </div>
+        <div class="meta-barra"><div class="meta-progreso" style="width:${m.porcentaje}%"></div></div>
+        <div class="meta-pie">${m.porcentaje}% · hasta ${fmtFecha(m.fecha_fin).split(" ")[0]}</div>
+      </div>`)
+            .join("")
+        : '<p class="vacio-texto">Sin metas registradas todavía.</p>';
+}
+async function cargarMetas() {
+    const metas = await api("/api/metas");
+    renderMetas(metas);
+}
+// ---------------------------------------------------------------- clientes
+async function cargarClientes() {
+    clientesCache = await api("/api/clientes");
+    const ul = document.getElementById("lista-clientes");
+    ul.innerHTML = clientesCache.length
+        ? clientesCache.map((c) => `<li>${c.nombre}${c.contacto ? " — " + c.contacto : ""}</li>`).join("")
+        : '<li class="sin-alertas">Sin clientes todavía.</li>';
+    const opciones = clientesCache.map((c) => `<option value="${c.id}">${c.nombre}</option>`).join("");
+    document.getElementById("select-cliente-credito").innerHTML =
+        '<option value="">Selecciona un cliente…</option>' + opciones;
 }
 // -------------------------------------------------------- punto de venta
 function renderCarrito() {
@@ -192,8 +285,7 @@ function renderCarrito() {
     tbody.querySelectorAll(".cantidad-carrito").forEach((input) => {
         input.addEventListener("change", () => {
             const idx = Number(input.dataset.idx);
-            const cantidad = Math.max(1, Number(input.value) || 1);
-            carrito[idx].cantidad = cantidad;
+            carrito[idx].cantidad = Math.max(1, Number(input.value) || 1);
             renderCarrito();
         });
     });
@@ -213,13 +305,14 @@ function totalCarrito() {
 function actualizarCambio() {
     const metodo = document.getElementById("metodo-pago").value;
     const montoInput = document.getElementById("monto-recibido");
+    const clienteSelect = document.getElementById("select-cliente-credito");
     const cambioEl = document.getElementById("cambio-calculado");
+    montoInput.hidden = metodo !== "efectivo";
+    clienteSelect.hidden = metodo !== "credito";
     if (metodo !== "efectivo") {
-        montoInput.hidden = true;
         cambioEl.textContent = "";
         return;
     }
-    montoInput.hidden = false;
     const monto = Number(montoInput.value);
     const total = totalCarrito();
     if (!montoInput.value || isNaN(monto)) {
@@ -236,25 +329,23 @@ function renderRecibo(ticket) {
     var _a, _b;
     const items = (_a = ticket.items) !== null && _a !== void 0 ? _a : [];
     const filas = items
-        .map((i) => `
-      <tr>
-        <td>${i.producto_nombre}</td>
-        <td>${i.cantidad}</td>
-        <td>$${fmt(i.subtotal)}</td>
-      </tr>`)
+        .map((i) => `<tr><td>${i.producto_nombre}</td><td>${i.cantidad}</td><td>$${fmt(i.subtotal)}</td></tr>`)
         .join("");
+    const metodoTexto = ticket.metodo_pago === "efectivo" ? "Efectivo" : ticket.metodo_pago === "tarjeta" ? "Tarjeta" : "Crédito";
     return `
     <p class="recibo-titulo">Manager Tapper</p>
     <p class="recibo-meta">Ticket #${ticket.id} · ${fmtFecha(ticket.fecha)}</p>
+    ${ticket.cliente_nombre ? `<p class="recibo-meta">Cliente: ${ticket.cliente_nombre}</p>` : ""}
     <table class="recibo-tabla">
       <thead><tr><th>Producto</th><th>Cant.</th><th>Subtotal</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
     <p class="recibo-total">Total: $${fmt(ticket.total)}</p>
-    <p class="recibo-meta">Método de pago: ${ticket.metodo_pago === "efectivo" ? "Efectivo" : "Tarjeta"}</p>
+    <p class="recibo-meta">Método de pago: ${metodoTexto}</p>
     ${ticket.metodo_pago === "efectivo" && ticket.monto_pagado !== null
         ? `<p class="recibo-meta">Pagó: $${fmt(ticket.monto_pagado)} · Cambio: $${fmt((_b = ticket.cambio) !== null && _b !== void 0 ? _b : 0)}</p>`
         : ""}
+    ${ticket.metodo_pago === "credito" ? `<p class="recibo-meta">${ticket.pagado ? "Pagado" : "Pendiente de pago"}</p>` : ""}
   `;
 }
 async function completarVenta() {
@@ -264,13 +355,15 @@ async function completarVenta() {
     }
     const metodo = document.getElementById("metodo-pago").value;
     const montoInput = document.getElementById("monto-recibido");
+    const clienteSelect = document.getElementById("select-cliente-credito");
     const payload = {
         items: carrito.map((i) => ({ producto_id: i.producto_id, cantidad: i.cantidad })),
         metodo_pago: metodo,
     };
-    if (metodo === "efectivo") {
+    if (metodo === "efectivo")
         payload.monto_pagado = Number(montoInput.value);
-    }
+    if (metodo === "credito")
+        payload.cliente_id = Number(clienteSelect.value) || null;
     try {
         const ticket = await api("/api/ventas", { method: "POST", body: JSON.stringify(payload) });
         document.getElementById("recibo-contenido").innerHTML = renderRecibo(ticket);
@@ -279,7 +372,10 @@ async function completarVenta() {
         renderCarrito();
         montoInput.value = "";
         document.getElementById("cambio-calculado").textContent = "";
-        await Promise.all([cargarResumen(), cargarProductos(), cargarAlertas(), cargarRanking(), cargarTickets()]);
+        await Promise.all([
+            cargarResumen(), cargarProductos(), cargarAlertas(), cargarRanking(),
+            cargarTickets(), cargarCuentasPorCobrar(), cargarVentasPorPeriodo(), cargarMetas(),
+        ]);
     }
     catch (e) {
         alert(e.message);
@@ -294,7 +390,7 @@ async function cargarTickets() {
             .map((t) => `
       <tr>
         <td>${fmtFecha(t.fecha)}</td>
-        <td>${t.metodo_pago === "efectivo" ? "Efectivo" : "Tarjeta"}</td>
+        <td>${t.metodo_pago === "efectivo" ? "Efectivo" : t.metodo_pago === "tarjeta" ? "Tarjeta" : "Crédito"}</td>
         <td>${t.num_items}</td>
         <td>$${fmt(t.total)}</td>
         <td><button type="button" class="btn-ver-ticket" data-id="${t.id}">Ver</button></td>
@@ -310,27 +406,99 @@ async function cargarTickets() {
         });
     });
 }
+// ----------------------------------------------------------- cuentas x cobrar
+async function cargarCuentasPorCobrar() {
+    const tickets = await api("/api/cuentas-por-cobrar");
+    const tbody = document.querySelector("#tabla-cuentas-cobrar tbody");
+    tbody.innerHTML = tickets.length
+        ? tickets
+            .map((t) => {
+            var _a;
+            return `
+      <tr>
+        <td>${fmtFecha(t.fecha)}</td>
+        <td>${(_a = t.cliente_nombre) !== null && _a !== void 0 ? _a : "—"}</td>
+        <td>$${fmt(t.total)}</td>
+        <td><button type="button" class="btn-marcar-pagado" data-id="${t.id}">Marcar pagado</button></td>
+      </tr>`;
+        })
+            .join("")
+        : `<tr><td colspan="4" class="vacio">Sin cuentas pendientes.</td></tr>`;
+    tbody.querySelectorAll(".btn-marcar-pagado").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            await api(`/api/tickets/${btn.dataset.id}/marcar-pagado`, { method: "POST" });
+            await Promise.all([cargarCuentasPorCobrar(), cargarTickets()]);
+        });
+    });
+}
 // --------------------------------------------------------------- global
 async function recargarTodo() {
     await Promise.all([
         cargarResumen(),
         cargarCategorias(),
         cargarProductos(),
+        cargarClientes(),
         cargarAlertas(),
         cargarRanking(),
         cargarTickets(),
+        cargarCuentasPorCobrar(),
+        cargarGastos(),
+        cargarMetas(),
+        cargarVentasPorPeriodo(),
     ]);
 }
 document.getElementById("form-capital").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const form = ev.target;
     const datos = leerFormulario(form);
-    await api("/api/capital", {
-        method: "POST",
-        body: JSON.stringify({ monto: Number(datos.monto), descripcion: datos.descripcion }),
-    });
+    await api("/api/capital", { method: "POST", body: JSON.stringify({ monto: Number(datos.monto), descripcion: datos.descripcion }) });
     form.reset();
     await cargarResumen();
+});
+document.getElementById("form-gasto").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const form = ev.target;
+    const datos = leerFormulario(form);
+    await api("/api/gastos", {
+        method: "POST",
+        body: JSON.stringify({ descripcion: datos.descripcion, monto: Number(datos.monto), categoria: datos.categoria || null }),
+    });
+    form.reset();
+    await Promise.all([cargarGastos(), cargarResumen()]);
+});
+document.getElementById("form-meta").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const form = ev.target;
+    const datos = leerFormulario(form);
+    try {
+        await api("/api/metas", {
+            method: "POST",
+            body: JSON.stringify({
+                descripcion: datos.descripcion,
+                monto_objetivo: Number(datos.monto_objetivo),
+                fecha_inicio: datos.fecha_inicio,
+                fecha_fin: datos.fecha_fin,
+            }),
+        });
+        form.reset();
+        await cargarMetas();
+    }
+    catch (e) {
+        alert(e.message);
+    }
+});
+document.getElementById("form-cliente").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const form = ev.target;
+    const datos = leerFormulario(form);
+    try {
+        await api("/api/clientes", { method: "POST", body: JSON.stringify({ nombre: datos.nombre, contacto: datos.contacto || null }) });
+        form.reset();
+        await cargarClientes();
+    }
+    catch (e) {
+        alert(e.message);
+    }
 });
 document.getElementById("form-categoria").addEventListener("submit", async (ev) => {
     ev.preventDefault();
@@ -362,11 +530,7 @@ document.getElementById("form-producto").addEventListener("submit", async (ev) =
             await api(`/api/productos/${datos.producto_id}`, { method: "PUT", body: JSON.stringify(payload) });
             const nuevoPrecio = Number(datos.precio);
             if (original && nuevoPrecio !== original.precio_actual) {
-                // El precio tiene su propio endpoint para que el cambio quede en el historial.
-                await api(`/api/productos/${datos.producto_id}/precio`, {
-                    method: "PUT",
-                    body: JSON.stringify({ precio: nuevoPrecio }),
-                });
+                await api(`/api/productos/${datos.producto_id}/precio`, { method: "PUT", body: JSON.stringify({ precio: nuevoPrecio }) });
             }
         }
         else {
@@ -395,12 +559,7 @@ document.getElementById("form-agregar-carrito").addEventListener("submit", (ev) 
         existente.cantidad += cantidad;
     }
     else {
-        carrito.push({
-            producto_id: producto.id,
-            nombre: producto.nombre,
-            precio_unitario: producto.precio_actual,
-            cantidad,
-        });
+        carrito.push({ producto_id: producto.id, nombre: producto.nombre, precio_unitario: producto.precio_actual, cantidad });
     }
     renderCarrito();
     form.elements.namedItem("cantidad").value = "1";
@@ -435,6 +594,5 @@ document.getElementById("form-simulador").addEventListener("submit", async (ev) 
     (${signo}${fmt(resultado.diferencia)})</p>
   `;
 });
-// estado inicial del selector de método de pago (oculta "monto recibido" si aplica)
 actualizarCambio();
 recargarTodo();
