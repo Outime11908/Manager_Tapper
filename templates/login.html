@@ -12,6 +12,7 @@
       <h2>Manager Tapper</h2>
       {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
       <form method="post" class="auth-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
         <label>Usuario
           <input type="text" name="username" required autofocus />
         </label>
@@ -20,6 +21,7 @@
         </label>
         <button type="submit">Entrar</button>
       </form>
+      <a href="{{ url_for('terminos') }}" class="auth-terminos-link" target="_blank" rel="noopener">Términos y condiciones</a>
     </section>
   </main>
 </body>

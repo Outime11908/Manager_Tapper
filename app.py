@@ -1,12 +1,41 @@
 import os
+import secrets
 import sys
+import time
+from collections import defaultdict
 from datetime import datetime, time as dtime
 from functools import wraps
 
 from flask import (
-    Flask, request, jsonify, render_template, session, redirect, url_for, send_file,
+    Flask, request, jsonify, render_template, session, redirect, url_for, send_file, abort,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# -------------------------------------------------- límite de intentos de login
+# En memoria: se reinicia si el proceso se reinicia. Suficiente para un
+# proyecto escolar con un solo servidor; no se comparte entre instancias.
+INTENTOS_MAXIMOS = 5
+BLOQUEO_SEGUNDOS = 5 * 60
+_intentos_login = defaultdict(list)  # clave "ip:usuario" -> [timestamps de fallos]
+
+
+def _clave_intentos():
+    return f"{request.remote_addr}:{request.form.get('username', '')}"
+
+
+def _bloqueado():
+    ahora = time.time()
+    intentos = [t for t in _intentos_login[_clave_intentos()] if ahora - t < BLOQUEO_SEGUNDOS]
+    _intentos_login[_clave_intentos()] = intentos
+    return len(intentos) >= INTENTOS_MAXIMOS
+
+
+def _registrar_intento_fallido():
+    _intentos_login[_clave_intentos()].append(time.time())
+
+
+def _limpiar_intentos():
+    _intentos_login.pop(_clave_intentos(), None)
 
 from models import (
     db, Usuario, Categoria, Producto, HistorialPrecio, Cliente, Ticket, DetalleVenta,
@@ -42,10 +71,32 @@ def create_app():
     # Define SECRET_KEY como variable de entorno en Render para producción;
     # este valor por defecto alcanza para uso local/escolar.
     app.secret_key = os.environ.get("SECRET_KEY", "manager-tapper-clave-de-desarrollo")
+
+    # ---- cookies de sesión más seguras ----
+    app.config["SESSION_COOKIE_HTTPONLY"] = True       # JS no puede leer la cookie
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"       # mitiga CSRF entre sitios
+    # "Secure" exige HTTPS -- Render ya sirve por HTTPS; en Render esta
+    # variable de entorno viene definida automáticamente.
+    app.config["SESSION_COOKIE_SECURE"] = os.environ.get("RENDER") is not None
+
     db.init_app(app)
 
     with app.app_context():
         db.create_all()
+
+    # ---- encabezados de seguridad en cada respuesta ----
+    @app.after_request
+    def agregar_encabezados_seguridad(resp):
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        resp.headers["X-Frame-Options"] = "DENY"
+        resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        resp.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' https://cdnjs.cloudflare.com; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:;"
+        )
+        return resp
 
     # ----------------------------------------------------------------- auth
     def login_required(f):
@@ -58,21 +109,45 @@ def create_app():
             return f(*args, **kwargs)
         return wrapper
 
+    # ---- token anti-CSRF para los formularios de login/setup ----
+    def csrf_token():
+        if "csrf_token" not in session:
+            session["csrf_token"] = secrets.token_hex(32)
+        return session["csrf_token"]
+
+    def csrf_valido():
+        enviado = request.form.get("csrf_token", "")
+        return enviado and secrets.compare_digest(enviado, session.get("csrf_token", ""))
+
+    @app.route("/terminos")
+    def terminos():
+        return render_template("terminos.html")
+
     @app.route("/setup", methods=["GET", "POST"])
     def setup():
         if Usuario.query.count() > 0:
             return redirect(url_for("login"))
         error = None
         if request.method == "POST":
-            username = request.form.get("username", "").strip()
-            password = request.form.get("password", "")
-            if not username or len(password) < 4:
-                error = "El usuario no puede estar vacío y la contraseña debe tener al menos 4 caracteres."
+            if not csrf_valido():
+                error = "Tu sesión expiró, intenta de nuevo."
             else:
-                db.session.add(Usuario(username=username, password_hash=generate_password_hash(password)))
-                db.session.commit()
-                return redirect(url_for("login"))
-        return render_template("setup.html", error=error)
+                username = request.form.get("username", "").strip()
+                password = request.form.get("password", "")
+                acepto = request.form.get("acepto_terminos") == "on"
+                if not username or len(password) < 4:
+                    error = "El usuario no puede estar vacío y la contraseña debe tener al menos 4 caracteres."
+                elif not acepto:
+                    error = "Debes aceptar los términos y condiciones para crear tu cuenta."
+                else:
+                    db.session.add(Usuario(
+                        username=username,
+                        password_hash=generate_password_hash(password),
+                        terminos_aceptados_en=datetime.utcnow(),
+                    ))
+                    db.session.commit()
+                    return redirect(url_for("login"))
+        return render_template("setup.html", error=error, csrf_token=csrf_token())
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
@@ -80,14 +155,22 @@ def create_app():
             return redirect(url_for("setup"))
         error = None
         if request.method == "POST":
-            username = request.form.get("username", "")
-            password = request.form.get("password", "")
-            usuario = Usuario.query.filter_by(username=username).first()
-            if usuario and check_password_hash(usuario.password_hash, password):
-                session["usuario_id"] = usuario.id
-                return redirect(url_for("index"))
-            error = "Usuario o contraseña incorrectos."
-        return render_template("login.html", error=error)
+            if not csrf_valido():
+                error = "Tu sesión expiró, intenta de nuevo."
+            elif _bloqueado():
+                error = f"Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo."
+            else:
+                username = request.form.get("username", "")
+                password = request.form.get("password", "")
+                usuario = Usuario.query.filter_by(username=username).first()
+                if usuario and check_password_hash(usuario.password_hash, password):
+                    _limpiar_intentos()
+                    session.clear()
+                    session["usuario_id"] = usuario.id
+                    return redirect(url_for("index"))
+                _registrar_intento_fallido()
+                error = "Usuario o contraseña incorrectos."
+        return render_template("login.html", error=error, csrf_token=csrf_token())
 
     @app.route("/logout")
     def logout():

@@ -116,6 +116,33 @@ Nota: la web (Render) y el `.exe` de escritorio tienen bases de datos
 separadas, así que vas a crear una cuenta en cada una la primera vez que las
 abras.
 
+## Seguridad
+
+Protecciones ya incluidas, pensadas para un proyecto escolar expuesto en
+internet (no para un sistema con dinero real):
+
+- **Términos y condiciones** — hay que aceptarlos para crear una cuenta
+  (`/terminos`); queda guardada la fecha de aceptación en `Usuario.terminos_aceptados_en`.
+- **Bloqueo por intentos fallidos** — 5 intentos de login incorrectos desde
+  la misma combinación IP+usuario bloquean el login por 5 minutos
+  (`app.py`, `INTENTOS_MAXIMOS` / `BLOQUEO_SEGUNDOS`). Es en memoria, así que
+  se reinicia si el servicio se reinicia — suficiente para este alcance.
+- **Protección CSRF** en los formularios de login/setup — un token por
+  sesión que se valida con comparación segura (`secrets.compare_digest`).
+- **Cookies de sesión** con `HttpOnly` (JavaScript no puede leerla),
+  `SameSite=Lax`, y `Secure` automático cuando corre en Render (exige HTTPS).
+- **Encabezados HTTP de seguridad** en cada respuesta: `X-Content-Type-Options`,
+  `X-Frame-Options`, `Content-Security-Policy`, `Referrer-Policy`.
+- **Contraseñas con hash** (`werkzeug.security`, algoritmo scrypt), nunca en
+  texto plano.
+- **Consultas con SQLAlchemy** (ORM) en todo el proyecto — nada de SQL armado
+  a mano, así que no hay inyección SQL por concatenar texto.
+
+Ningún sistema es 100% invulnerable, y esto no sustituye buenas prácticas
+básicas de tu parte: usa una contraseña real (no "admin123"), define
+`SECRET_KEY` en Render, y no captures datos sensibles reales de un negocio
+de verdad en un proyecto escolar.
+
 ## Funciones nuevas en esta versión
 
 - **Login** con usuario/contraseña (`/setup` la primera vez).
@@ -164,8 +191,6 @@ Se vuelve a crear vacía la primera vez que abras la app.
 
 ## Próximos pasos sugeridos
 
-1. **Subir esto a tu repositorio de GitHub** (ya lo tienes creado).
-2. Agregar autenticación si vas a tener más de un usuario/negocio.
-3. Desplegar en Render (backend) como ya hiciste con Job_Radar Pro.
-4. Ajustar el umbral de "stock bajo" en `models.py` (`UMBRAL_STOCK_BAJO`) según el negocio.
-5. Si quieres persistir en producción, considera Postgres en vez de SQLite (Render lo ofrece gratis).
+1. Ajustar el umbral de "stock bajo" en `models.py` (`UMBRAL_STOCK_BAJO`) según el negocio.
+2. Si quieres persistir en producción, considera Postgres en vez de SQLite (Render lo ofrece gratis).
+3. Si en algún momento manejas más de un usuario por negocio (no solo un admin compartido), considera cuentas con roles en vez del usuario único actual.

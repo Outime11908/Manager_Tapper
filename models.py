@@ -34,6 +34,7 @@ class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    terminos_aceptados_en = db.Column(db.DateTime, nullable=True)
 
 
 class Categoria(db.Model):

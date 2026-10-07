@@ -84,29 +84,29 @@
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\Microsoft.Web.WebView2.Core.dll',
    'BINARY'),
-  ('webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
-   'BINARY'),
   ('webview\\lib\\WebBrowserInterop.x64.dll',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\WebBrowserInterop.x64.dll',
    'BINARY'),
-  ('webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+  ('webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
    'BINARY'),
   ('webview\\lib\\runtimes\\win-x86\\native\\WebView2Loader.dll',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-x86\\native\\WebView2Loader.dll',
    'BINARY'),
+  ('webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-x64\\native\\WebView2Loader.dll',
+   'BINARY'),
   ('webview\\lib\\WebBrowserInterop.x86.dll',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\WebBrowserInterop.x86.dll',
    'BINARY'),
-  ('webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
+  ('webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\Microsoft.Web.WebView2.WinForms.dll',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\runtimes\\win-arm64\\native\\WebView2Loader.dll',
    'BINARY'),
   ('pythonnet\\runtime\\Python.Runtime.dll',
    'C:\\Users\\Cass '
@@ -176,17 +176,57 @@
    'C:\\Users\\Cass '
    'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_multiprocessing.pyd',
    'EXTENSION'),
-  ('pyexpat.pyd',
-   'C:\\Users\\Cass '
-   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\pyexpat.pyd',
-   'EXTENSION'),
   ('_ssl.pyd',
    'C:\\Users\\Cass '
    'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_ssl.pyd',
    'EXTENSION'),
+  ('pyexpat.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\pyexpat.pyd',
+   'EXTENSION'),
   ('_wmi.pyd',
    'C:\\Users\\Cass '
    'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_wmi.pyd',
+   'EXTENSION'),
+  ('PIL\\_imagingcms.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_imagingcms.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('PIL\\_webp.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_webp.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('PIL\\_imagingtk.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_imagingtk.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('PIL\\_avif.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_avif.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('PIL\\_imagingmath.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_imagingmath.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('PIL\\_imaging.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PIL\\_imaging.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('_uuid.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_uuid.pyd',
+   'EXTENSION'),
+  ('fontTools\\misc\\bezierTools.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\fontTools\\misc\\bezierTools.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('fontTools\\varLib\\iup.cp314-win_amd64.pyd',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\fontTools\\varLib\\iup.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('_elementtree.pyd',
+   'C:\\Users\\Cass '
+   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_elementtree.pyd',
    'EXTENSION'),
   ('sqlalchemy\\sql\\_cache_key_cy.cp314-win_amd64.pyd',
    'C:\\Users\\Cass '
@@ -220,10 +260,6 @@
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\sqlalchemy\\util\\_collections_cy.cp314-win_amd64.pyd',
    'EXTENSION'),
-  ('_uuid.pyd',
-   'C:\\Users\\Cass '
-   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_uuid.pyd',
-   'EXTENSION'),
   ('markupsafe\\_speedups.cp314-win_amd64.pyd',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe\\_speedups.cp314-win_amd64.pyd',
@@ -235,10 +271,6 @@
   ('_cffi_backend.cp314-win_amd64.pyd',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\_cffi_backend.cp314-win_amd64.pyd',
-   'EXTENSION'),
-  ('_elementtree.pyd',
-   'C:\\Users\\Cass '
-   'PC\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_elementtree.pyd',
    'EXTENSION'),
   ('VCRUNTIME140.dll',
    'C:\\Users\\Cass '
@@ -276,29 +308,35 @@
   ('templates\\index.html',
    'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\templates\\index.html',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+  ('templates\\login.html',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\templates\\login.html',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+  ('templates\\setup.html',
+   'C:\\Users\\Cass PC\\Desktop\\manager_tapper\\templates\\setup.html',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
    'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
    'C:\\Users\\Cass '
@@ -309,13 +347,25 @@
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
    'ipsum.txt',
    'DATA'),
+  ('webview\\js\\lib\\dom_json.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\lib\\dom_json.js',
+   'DATA'),
   ('webview\\lib\\pywebview-android.jar',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\lib\\pywebview-android.jar',
    'DATA'),
+  ('webview\\js\\state.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\state.js',
+   'DATA'),
   ('webview\\js\\lib\\polyfill.js',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\lib\\polyfill.js',
+   'DATA'),
+  ('webview\\js\\customize.js',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\customize.js',
    'DATA'),
   ('webview\\js\\finish.js',
    'C:\\Users\\Cass '
@@ -325,18 +375,6 @@
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\api.js',
    'DATA'),
-  ('webview\\js\\lib\\dom_json.js',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\lib\\dom_json.js',
-   'DATA'),
-  ('webview\\js\\state.js',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\state.js',
-   'DATA'),
-  ('webview\\js\\customize.js',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\webview\\js\\customize.js',
-   'DATA'),
   ('pythonnet\\runtime\\Python.Runtime.deps.json',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\pythonnet\\runtime\\Python.Runtime.deps.json',
@@ -345,49 +383,113 @@
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\pythonnet\\runtime\\Python.Runtime.xml',
    'DATA'),
-  ('werkzeug-3.1.9.dist-info\\RECORD',
+  ('markupsafe-3.0.3.dist-info\\INSTALLER',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\RECORD',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\INSTALLER',
    'DATA'),
-  ('click-8.5.0.dist-info\\RECORD',
+  ('itsdangerous-2.2.0.dist-info\\WHEEL',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\RECORD',
-   'DATA'),
-  ('flask-3.0.3.dist-info\\LICENSE.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\LICENSE.txt',
-   'DATA'),
-  ('werkzeug-3.1.9.dist-info\\METADATA',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\METADATA',
-   'DATA'),
-  ('flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
    'DATA'),
   ('flask-3.0.3.dist-info\\entry_points.txt',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\entry_points.txt',
    'DATA'),
-  ('flask-3.0.3.dist-info\\REQUESTED',
+  ('flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\REQUESTED',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\top_level.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\top_level.txt',
+   'DATA'),
+  ('click-8.5.0.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\WHEEL',
    'DATA'),
   ('flask_sqlalchemy-3.1.1.dist-info\\LICENSE.rst',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\LICENSE.rst',
    'DATA'),
+  ('flask-3.0.3.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\METADATA',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\LICENSE.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'DATA'),
   ('itsdangerous-2.2.0.dist-info\\METADATA',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\METADATA',
    'DATA'),
-  ('flask-3.0.3.dist-info\\METADATA',
+  ('flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\METADATA',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('click-8.5.0.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\METADATA',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\WHEEL',
+   'DATA'),
+  ('werkzeug-3.1.9.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\RECORD',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\RECORD',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\REQUESTED',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\REQUESTED',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\METADATA',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('flask-3.0.3.dist-info\\WHEEL',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\WHEEL',
+   'DATA'),
+  ('click-8.5.0.dist-info\\RECORD',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\RECORD',
+   'DATA'),
+  ('click-8.5.0.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Cass '
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\licenses\\LICENSE.txt',
    'DATA'),
   ('itsdangerous-2.2.0.dist-info\\INSTALLER',
    'C:\\Users\\Cass '
@@ -397,89 +499,25 @@
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\INSTALLER',
    'DATA'),
-  ('flask_sqlalchemy-3.1.1.dist-info\\RECORD',
+  ('flask-3.0.3.dist-info\\METADATA',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\RECORD',
-   'DATA'),
-  ('flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\INSTALLER',
-   'DATA'),
-  ('werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\METADATA',
    'DATA'),
   ('markupsafe-3.0.3.dist-info\\WHEEL',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\WHEEL',
    'DATA'),
-  ('flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\WHEEL',
-   'DATA'),
-  ('click-8.5.0.dist-info\\WHEEL',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\WHEEL',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\METADATA',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
-   'DATA'),
-  ('flask-3.0.3.dist-info\\RECORD',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\RECORD',
-   'DATA'),
-  ('click-8.5.0.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\licenses\\LICENSE.txt',
-   'DATA'),
   ('itsdangerous-2.2.0.dist-info\\RECORD',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\RECORD',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\RECORD',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\INSTALLER',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\INSTALLER',
-   'DATA'),
-  ('click-8.5.0.dist-info\\METADATA',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\METADATA',
-   'DATA'),
-  ('flask-3.0.3.dist-info\\WHEEL',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\WHEEL',
-   'DATA'),
-  ('werkzeug-3.1.9.dist-info\\WHEEL',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\WHEEL',
-   'DATA'),
-  ('flask_sqlalchemy-3.1.1.dist-info\\METADATA',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask_sqlalchemy-3.1.1.dist-info\\METADATA',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\top_level.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\top_level.txt',
-   'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\LICENSE.txt',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\LICENSE.txt',
    'DATA'),
   ('click-8.5.0.dist-info\\INSTALLER',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\click-8.5.0.dist-info\\INSTALLER',
    'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\WHEEL',
+  ('werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
    'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
-   'DATA'),
-  ('flask-3.0.3.dist-info\\INSTALLER',
-   'C:\\Users\\Cass '
-   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\flask-3.0.3.dist-info\\INSTALLER',
+   'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\werkzeug-3.1.9.dist-info\\licenses\\LICENSE.txt',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\Cass '
@@ -488,7 +526,7 @@
  [],
  False,
  False,
- 1790715502,
+ 1791255243,
  [('runw.exe',
    'C:\\Users\\Cass '
    'PC\\Desktop\\manager_tapper\\venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
