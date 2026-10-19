@@ -148,6 +148,31 @@ function aplicarTema(tema: "light" | "dark"): void {
   try { localStorage.setItem("mt-tema", tema); } catch (e) { /* almacenamiento no disponible */ }
 }
 
+// ------------------------------------------------------------- pestañas
+function inicializarPestanas(): void {
+  const botones = document.querySelectorAll<HTMLButtonElement>(".tab-btn");
+  const paneles = document.querySelectorAll<HTMLDivElement>(".panel-pestana");
+  const nombres = new Set(Array.from(paneles).map((p) => p.dataset.panel));
+
+  function activar(tab: string): void {
+    botones.forEach((b) => b.classList.toggle("activo", b.dataset.tab === tab));
+    paneles.forEach((p) => { p.hidden = p.dataset.panel !== tab; });
+    try { localStorage.setItem("mt-tab", tab); } catch (e) { /* almacenamiento no disponible */ }
+  }
+
+  botones.forEach((b) => {
+    b.addEventListener("click", () => activar(b.dataset.tab!));
+  });
+
+  let inicial = "dashboard";
+  try {
+    const guardada = localStorage.getItem("mt-tab");
+    if (guardada && nombres.has(guardada)) inicial = guardada;
+  } catch (e) { /* almacenamiento no disponible */ }
+  activar(inicial);
+}
+inicializarPestanas();
+
 document.getElementById("btn-tema")!.addEventListener("click", () => {
   const actual = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   aplicarTema(actual === "dark" ? "light" : "dark");

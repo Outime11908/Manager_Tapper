@@ -71,6 +71,34 @@ header p { margin: 0; color: rgba(251, 247, 238, 0.78); font-size: 0.98rem; }
 
 main { max-width: 900px; margin: 0 auto; padding: 28px 20px 40px; display: grid; gap: 22px; }
 
+.tabs {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-bottom: 3px double var(--rule);
+}
+.tab-btn {
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  margin-bottom: -3px;
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.tab-btn:hover { background: rgba(156, 107, 41, 0.07); color: var(--ink-text); }
+.tab-btn.activo { color: var(--ink-text); border-bottom-color: var(--brass); }
+.tab-btn:focus-visible { outline: 2px solid var(--ink-text); outline-offset: -2px; }
+
+.panel-pestana { display: grid; gap: 22px; }
+
 .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 2px; padding: 0 22px 22px; }
 .card h2 {
   margin: 0 -22px 18px;
