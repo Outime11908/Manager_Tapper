@@ -18,6 +18,8 @@ manager_tapper/
 │   ├── app.ts           # Frontend en TypeScript (fuente)
 │   ├── app.js           # Frontend compilado (el que carga index.html)
 │   └── style.css
+├── tests/
+│   └── test_multinegocio.py  # prueba de aislamiento entre negocios
 ├── desktop_app.py            # Envoltorio: abre app.py en una ventana de Windows
 └── requirements-desktop.txt  # Dependencias extra para compilar el .exe
 ```
@@ -102,10 +104,11 @@ pueden volver a consultar en "Historial de ventas".
 
 ## Cuenta y acceso
 
-La primera vez que abras la app (web o `.exe`) te manda a `/setup` para crear
-un usuario y contraseña — no hay credenciales por defecto. A partir de ahí,
-cada vez que entres te pide login. La contraseña se guarda con hash
-(`werkzeug.security`), nunca en texto plano.
+Cualquier persona puede crear la cuenta de su negocio en `/registro` (nombre
+del negocio, usuario, correo, contraseña de mínimo 8 caracteres y aceptar los
+términos). No hay credenciales por defecto. Después, cada vez que entre, le
+pide login. La contraseña se guarda con hash (`werkzeug.security`), nunca en
+texto plano. El enlace viejo `/setup` redirige a `/registro`.
 
 En Render, define la variable de entorno `SECRET_KEY` (Settings ->
 Environment) con cualquier texto largo y aleatorio — si no la defines, la
@@ -115,6 +118,31 @@ a iniciar sesión más seguido.
 Nota: la web (Render) y el `.exe` de escritorio tienen bases de datos
 separadas, así que vas a crear una cuenta en cada una la primera vez que las
 abras.
+
+## Multi-negocio (cuentas separadas por cliente)
+
+Cada negocio (`Negocio` en `models.py`) tiene sus propios productos,
+categorías, clientes, ventas, capital, gastos y metas. Casi todas las tablas
+llevan `negocio_id`, y **toda** consulta de `app.py` pasa por `mis(Modelo)` /
+`mio_o_404(Modelo, id)`, que filtran por el negocio de la sesión. Si alguien
+pide por id algo de otro negocio recibe 404 (igual que si no existiera), y
+los nombres de producto/categoría solo deben ser únicos dentro de cada
+negocio.
+
+- Una cuenta pertenece a un solo negocio. Ya existen las columnas `rol`
+  (`dueno`/`empleado`) y `Negocio.activo` (para suspender cuentas), pero los
+  permisos por rol y el panel de administrador todavía no están construidos.
+- Si un negocio se suspende (`activo = False`), su sesión deja de funcionar en
+  la siguiente petición y no puede volver a entrar.
+- Hay un límite de 5 registros por hora desde la misma conexión (variable
+  `MANAGER_TAPPER_REGISTROS_MAX` para cambiarlo). En Render se usa `ProxyFix`
+  para ver la IP real del visitante y no la del proxy.
+
+**Prueba de aislamiento:** `python tests/test_multinegocio.py` crea una base
+temporal con varios negocios y comprueba que uno no puede ver, editar, borrar
+ni usar datos de otro (listados, ids ajenos, ventas con productos o clientes
+ajenos, reportes, sesiones manipuladas, suspensión). Córrela después de
+cualquier cambio en `app.py` o `business_logic.py`.
 
 ## Seguridad
 
@@ -127,12 +155,18 @@ internet (no para un sistema con dinero real):
   la misma combinación IP+usuario bloquean el login por 5 minutos
   (`app.py`, `INTENTOS_MAXIMOS` / `BLOQUEO_SEGUNDOS`). Es en memoria, así que
   se reinicia si el servicio se reinicia — suficiente para este alcance.
-- **Protección CSRF** en los formularios de login/setup — un token por
+- **Protección CSRF** en los formularios de login/registro — un token por
   sesión que se valida con comparación segura (`secrets.compare_digest`).
 - **Cookies de sesión** con `HttpOnly` (JavaScript no puede leerla),
   `SameSite=Lax`, y `Secure` automático cuando corre en Render (exige HTTPS).
 - **Encabezados HTTP de seguridad** en cada respuesta: `X-Content-Type-Options`,
   `X-Frame-Options`, `Content-Security-Policy`, `Referrer-Policy`.
+- **Términos y condiciones** (`/terminos`): el titular y el contacto que se
+  muestran salen de las variables de entorno `MANAGER_TAPPER_TITULAR` y
+  `MANAGER_TAPPER_CONTACTO` (defínelas en Render; si no, aparece un marcador
+  entre corchetes). Es un texto base, no asesoría legal: si vas a cobrar,
+  necesitas además un Aviso de Privacidad (LFPDPPP) y que un abogado revise
+  los términos.
 - **Contraseñas con hash** (`werkzeug.security`, algoritmo scrypt), nunca en
   texto plano.
 - **Consultas con SQLAlchemy** (ORM) en todo el proyecto — nada de SQL armado
@@ -145,7 +179,7 @@ de verdad en un proyecto escolar.
 
 ## Funciones nuevas en esta versión
 
-- **Login** con usuario/contraseña (`/setup` la primera vez).
+- **Login y registro de negocios** (`/registro`), con datos separados por negocio.
 - **Modo oscuro** — botón en la esquina superior derecha, se recuerda entre
   sesiones.
 - **Gastos operativos** — además de la ganancia bruta por producto, el
@@ -182,15 +216,26 @@ de verdad en un proyecto escolar.
 
 ## Si tenías una base de datos de antes
 
-El modelo de ventas cambió (antes era una venta por producto; ahora un
-ticket con varias líneas), así que una `manager_tapper.db` de una versión
-anterior no es compatible. Bórrala antes de correr esta versión — tanto la
-de pruebas locales/Render (`manager_tapper.db` en la carpeta del proyecto)
-como la del `.exe` de escritorio (`%USERPROFILE%\ManagerTapper\manager_tapper.db`).
-Se vuelve a crear vacía la primera vez que abras la app.
+Esta versión agrega negocios (`negocio_id` en casi todas las tablas, `email` y
+`rol` en usuarios), así que una base de una versión anterior no es
+compatible. Bórrala antes de correr esta versión: la carpeta `instance/`
+(ahí guarda Flask el `.db` en pruebas locales) y, para el `.exe` de
+escritorio, `%USERPROFILE%\ManagerTapper`. En Render el disco gratuito se
+reinicia solo en cada despliegue. Se vuelve a crear vacía y tendrás que
+registrar de nuevo tu negocio en `/registro`.
 
 ## Próximos pasos sugeridos
 
-1. Ajustar el umbral de "stock bajo" en `models.py` (`UMBRAL_STOCK_BAJO`) según el negocio.
-2. Si quieres persistir en producción, considera Postgres en vez de SQLite (Render lo ofrece gratis).
-3. Si en algún momento manejas más de un usuario por negocio (no solo un admin compartido), considera cuentas con roles en vez del usuario único actual.
+Para vender el servicio, en este orden:
+
+1. ~~Multi-negocio con registro~~ (hecho).
+2. Base de datos persistente (Postgres de pago): SQLite en el plan gratuito de
+   Render se pierde en cada despliegue.
+3. Recuperar contraseña por correo (ya se guarda el correo de cada usuario).
+4. Roles dueño/empleado (ya existe la columna `rol`).
+5. Cobro de suscripción (Stripe o Mercado Pago).
+6. Aviso de privacidad (obligatorio en México si manejas datos de clientes).
+7. Respaldos automáticos y panel de administrador.
+8. Facturación electrónica (CFDI).
+
+Además: ajustar el umbral de "stock bajo" en `models.py` (`UMBRAL_STOCK_BAJO`).

@@ -3,22 +3,28 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Manager Tapper · Configuración inicial</title>
+<title>Manager Tapper · Crear cuenta</title>
 <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body class="pagina-auth">
   <main class="auth-main">
     <section class="card auth-card">
-      <h2>Crea tu cuenta</h2>
-      <p class="auth-intro">Es la primera vez que abres Manager Tapper. Crea el usuario con el que vas a entrar.</p>
+      <h2>Crea la cuenta de tu negocio</h2>
+      <p class="auth-intro">Cada negocio tiene sus propios datos, separados de los de los demás.</p>
       {% if error %}<p class="auth-error">{{ error }}</p>{% endif %}
       <form method="post" class="auth-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-        <label>Usuario
-          <input type="text" name="username" required autofocus />
+        <label>Nombre del negocio
+          <input type="text" name="negocio" maxlength="120" value="{{ valores.get('negocio', '') }}" required autofocus />
         </label>
-        <label>Contraseña
-          <input type="password" name="password" minlength="4" required />
+        <label>Usuario
+          <input type="text" name="username" maxlength="80" value="{{ valores.get('username', '') }}" required />
+        </label>
+        <label>Correo
+          <input type="email" name="email" maxlength="120" value="{{ valores.get('email', '') }}" required />
+        </label>
+        <label>Contraseña (mínimo {{ min_password }} caracteres)
+          <input type="password" name="password" minlength="{{ min_password }}" required />
         </label>
         <label class="auth-checkbox">
           <input type="checkbox" name="acepto_terminos" required />
@@ -26,6 +32,7 @@
         </label>
         <button type="submit">Crear cuenta y entrar</button>
       </form>
+      <a href="{{ url_for('login') }}" class="auth-terminos-link">¿Ya tienes cuenta? Inicia sesión</a>
     </section>
   </main>
 </body>

@@ -10,6 +10,12 @@ from openpyxl.styles import Font, PatternFill
 from fpdf import FPDF
 
 
+def _l1(texto) -> str:
+    """La fuente base del PDF solo soporta Latin-1 (acentos y ñ sí; emojis no).
+    Los caracteres no soportados se cambian por '?' en vez de romper el reporte."""
+    return str(texto).encode("latin-1", "replace").decode("latin-1")
+
+
 def generar_excel_ventas(tickets) -> io.BytesIO:
     wb = Workbook()
     ws = wb.active
@@ -42,12 +48,15 @@ def generar_excel_ventas(tickets) -> io.BytesIO:
     return buffer
 
 
-def generar_pdf_resumen(resumen_data, tickets) -> io.BytesIO:
+def generar_pdf_resumen(resumen_data, tickets, negocio_nombre=None) -> io.BytesIO:
     pdf = FPDF()
     pdf.add_page()
 
     pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "Manager Tapper - Reporte", new_x="LMARGIN", new_y="NEXT")
+    titulo = "Manager Tapper - Reporte"
+    if negocio_nombre:
+        titulo += f" - {negocio_nombre}"
+    pdf.cell(0, 10, _l1(titulo), new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(90, 90, 90)
     pdf.cell(0, 6, f"Generado el {datetime.now().strftime('%d/%m/%Y %H:%M')}", new_x="LMARGIN", new_y="NEXT")
@@ -87,7 +96,7 @@ def generar_pdf_resumen(resumen_data, tickets) -> io.BytesIO:
                 fila = table.row()
                 fila.cell(t.fecha.strftime("%d/%m/%Y %H:%M"))
                 fila.cell(t.metodo_pago.capitalize())
-                fila.cell(t.cliente.nombre if t.cliente else "-")
+                fila.cell(_l1(t.cliente.nombre) if t.cliente else "-")
                 fila.cell(str(len(t.items)))
                 fila.cell(f"${t.total:,.2f}")
 

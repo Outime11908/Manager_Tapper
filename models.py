@@ -1,8 +1,14 @@
 """
 Modelos de datos de Manager Tapper.
 
+Multi-negocio: cada negocio (Negocio) tiene sus propios datos. Casi todas las
+tablas llevan `negocio_id` y TODA consulta en app.py filtra por el negocio de
+quien inició sesión, para que un negocio nunca vea los datos de otro.
+
 Tablas:
-- Usuario: la cuenta con la que se inicia sesión (contraseña con hash)
+- Negocio: el "cliente" de la plataforma; dueño de todos los datos de abajo
+- Usuario: la cuenta con la que se inicia sesión (contraseña con hash),
+  siempre pertenece a un Negocio
 - Categoria: categorías para organizar el catálogo
 - Producto: catálogo (nombre, costo, precio actual, stock, categoría, activo)
 - HistorialPrecio: registro de cada cambio de precio de un producto
@@ -28,20 +34,37 @@ db = SQLAlchemy()
 UMBRAL_STOCK_BAJO = 5
 
 
+class Negocio(db.Model):
+    __tablename__ = "negocios"
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(120), nullable=False)
+    activo = db.Column(db.Boolean, nullable=False, default=True)  # False = cuenta suspendida
+    creado_en = db.Column(db.DateTime, default=datetime.utcnow)
+
+    usuarios = db.relationship("Usuario", backref="negocio", lazy=True)
+
+
 class Usuario(db.Model):
     __tablename__ = "usuarios"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
+    rol = db.Column(db.String(20), nullable=False, default="dueno")  # "dueno" | "empleado"
     terminos_aceptados_en = db.Column(db.DateTime, nullable=True)
 
 
 class Categoria(db.Model):
     __tablename__ = "categorias"
 
+    __table_args__ = (db.UniqueConstraint("negocio_id", "nombre", name="uq_categoria_negocio_nombre"),)
+
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(80), nullable=False, unique=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
+    nombre = db.Column(db.String(80), nullable=False)
 
     productos = db.relationship("Producto", backref="categoria", lazy=True)
 
@@ -51,9 +74,11 @@ class Categoria(db.Model):
 
 class Producto(db.Model):
     __tablename__ = "productos"
+    __table_args__ = (db.UniqueConstraint("negocio_id", "nombre", name="uq_producto_negocio_nombre"),)
 
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(120), nullable=False, unique=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
+    nombre = db.Column(db.String(120), nullable=False)
     costo = db.Column(db.Float, nullable=False)
     precio_actual = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
@@ -118,6 +143,7 @@ class Cliente(db.Model):
     __tablename__ = "clientes"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     nombre = db.Column(db.String(120), nullable=False)
     contacto = db.Column(db.String(120))
 
@@ -132,6 +158,7 @@ class Ticket(db.Model):
     __tablename__ = "tickets"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
     metodo_pago = db.Column(db.String(20), nullable=False)  # "efectivo" | "tarjeta" | "credito"
     total = db.Column(db.Float, nullable=False)
@@ -201,6 +228,7 @@ class Capital(db.Model):
     __tablename__ = "capital"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     monto = db.Column(db.Float, nullable=False)
     descripcion = db.Column(db.String(200))
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
@@ -218,6 +246,7 @@ class Gasto(db.Model):
     __tablename__ = "gastos"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     descripcion = db.Column(db.String(200), nullable=False)
     monto = db.Column(db.Float, nullable=False)
     categoria = db.Column(db.String(80))
@@ -237,6 +266,7 @@ class Meta(db.Model):
     __tablename__ = "metas"
 
     id = db.Column(db.Integer, primary_key=True)
+    negocio_id = db.Column(db.Integer, db.ForeignKey("negocios.id"), nullable=False, index=True)
     descripcion = db.Column(db.String(200), nullable=False)
     monto_objetivo = db.Column(db.Float, nullable=False)
     fecha_inicio = db.Column(db.DateTime, nullable=False)

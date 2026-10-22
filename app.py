@@ -7,16 +7,32 @@ from datetime import datetime, time as dtime
 from functools import wraps
 
 from flask import (
-    Flask, request, jsonify, render_template, session, redirect, url_for, send_file, abort,
+    Flask, request, jsonify, render_template, session, redirect, url_for, send_file, g,
 )
+from sqlalchemy.exc import IntegrityError
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# -------------------------------------------------- límite de intentos de login
-# En memoria: se reinicia si el proceso se reinicia. Suficiente para un
-# proyecto escolar con un solo servidor; no se comparte entre instancias.
+from models import (
+    db, Negocio, Usuario, Categoria, Producto, HistorialPrecio, Cliente, Ticket, DetalleVenta,
+    Capital, Gasto, Meta, ConteoInventario,
+)
+import business_logic as logic
+import reportes as rep
+
+# ----------------------------------------------- límites de intentos (en memoria)
+# Se reinician si el proceso se reinicia y no se comparten entre varias
+# instancias del servidor; con una sola instancia en Render alcanzan.
 INTENTOS_MAXIMOS = 5
 BLOQUEO_SEGUNDOS = 5 * 60
 _intentos_login = defaultdict(list)  # clave "ip:usuario" -> [timestamps de fallos]
+
+# Evita que alguien cree cientos de negocios falsos desde la misma conexión.
+REGISTROS_MAXIMOS = int(os.environ.get("MANAGER_TAPPER_REGISTROS_MAX", "5"))
+REGISTROS_VENTANA = 60 * 60
+_registros_ip = defaultdict(list)  # ip -> [timestamps de registros]
+
+MIN_PASSWORD = 8
 
 
 def _clave_intentos():
@@ -37,12 +53,12 @@ def _registrar_intento_fallido():
 def _limpiar_intentos():
     _intentos_login.pop(_clave_intentos(), None)
 
-from models import (
-    db, Usuario, Categoria, Producto, HistorialPrecio, Cliente, Ticket, DetalleVenta,
-    Capital, Gasto, Meta, ConteoInventario,
-)
-import business_logic as logic
-import reportes as rep
+
+def _registros_excedidos():
+    ahora = time.time()
+    recientes = [t for t in _registros_ip[request.remote_addr] if ahora - t < REGISTROS_VENTANA]
+    _registros_ip[request.remote_addr] = recientes
+    return len(recientes) >= REGISTROS_MAXIMOS
 
 
 def _base_path():
@@ -62,6 +78,11 @@ def create_app():
         static_folder=os.path.join(_base_path(), "static"),
     )
 
+    # En Render hay un proxy delante: sin esto, request.remote_addr sería la IP
+    # del proxy y los límites de intentos tratarían a todos como una sola persona.
+    if os.environ.get("RENDER"):
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
     # En la web (Render) usa manager_tapper.db junto al código, como antes.
     # En el .exe de escritorio, desktop_app.py define esta variable de entorno
     # para guardar la base de datos en la carpeta del usuario.
@@ -69,7 +90,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     # Define SECRET_KEY como variable de entorno en Render para producción;
-    # este valor por defecto alcanza para uso local/escolar.
+    # este valor por defecto alcanza solo para desarrollo local.
     app.secret_key = os.environ.get("SECRET_KEY", "manager-tapper-clave-de-desarrollo")
 
     # ---- cookies de sesión más seguras ----
@@ -100,16 +121,48 @@ def create_app():
 
     # ----------------------------------------------------------------- auth
     def login_required(f):
+        """Exige sesión válida y deja el negocio actual en g.negocio.
+        Si el negocio fue suspendido, la sesión deja de servir de inmediato."""
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if "usuario_id" not in session:
-                if request.path.startswith("/api/"):
-                    return jsonify({"error": "No autenticado"}), 401
-                return redirect(url_for("login"))
-            return f(*args, **kwargs)
+            if "usuario_id" in session and "negocio_id" in session:
+                usuario = db.session.get(Usuario, session["usuario_id"])
+                negocio = db.session.get(Negocio, session["negocio_id"])
+                if usuario and negocio and negocio.activo and usuario.negocio_id == negocio.id:
+                    g.negocio = negocio
+                    g.usuario = usuario
+                    return f(*args, **kwargs)
+                session.clear()
+            if request.path.startswith("/api/"):
+                return jsonify({"error": "No autenticado"}), 401
+            return redirect(url_for("login"))
         return wrapper
 
-    # ---- token anti-CSRF para los formularios de login/setup ----
+    # ---- consultas SIEMPRE limitadas al negocio actual ----
+    def mis(modelo):
+        """Query de `modelo` solo con filas del negocio de la sesión."""
+        return modelo.query.filter_by(negocio_id=g.negocio.id)
+
+    def mio_o_404(modelo, id_):
+        """Una fila por id, pero solo si es de mi negocio (si no, 404 igual que
+        si no existiera: así no se puede adivinar qué ids existen en otros negocios)."""
+        return mis(modelo).filter_by(id=id_).first_or_404()
+
+    def guardar_o_error(mensaje_duplicado):
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({"error": mensaje_duplicado}), 400
+        return None
+
+    def entero_o_none(valor):
+        try:
+            return int(valor)
+        except (TypeError, ValueError):
+            return None
+
+    # ---- token anti-CSRF para los formularios de login/registro ----
     def csrf_token():
         if "csrf_token" not in session:
             session["csrf_token"] = secrets.token_hex(32)
@@ -121,55 +174,97 @@ def create_app():
 
     @app.route("/terminos")
     def terminos():
-        return render_template("terminos.html")
+        return render_template(
+            "terminos.html",
+            TITULAR=os.environ.get("MANAGER_TAPPER_TITULAR", "[nombre del titular / empresa]"),
+            CONTACTO=os.environ.get("MANAGER_TAPPER_CONTACTO", "[correo de contacto]"),
+        )
 
-    @app.route("/setup", methods=["GET", "POST"])
-    def setup():
-        if Usuario.query.count() > 0:
-            return redirect(url_for("login"))
+    @app.route("/setup")
+    def setup_antiguo():
+        # Enlace viejo de cuando solo existía el primer usuario.
+        return redirect(url_for("registro"))
+
+    @app.route("/registro", methods=["GET", "POST"])
+    def registro():
+        if "usuario_id" in session:
+            return redirect(url_for("index"))
         error = None
         if request.method == "POST":
+            negocio_nombre = request.form.get("negocio", "").strip()
+            username = request.form.get("username", "").strip()
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
+            acepto = request.form.get("acepto_terminos") == "on"
             if not csrf_valido():
                 error = "Tu sesión expiró, intenta de nuevo."
+            elif _registros_excedidos():
+                error = "Se crearon demasiadas cuentas desde esta conexión. Intenta más tarde."
+            elif not negocio_nombre or not username or "@" not in email or "." not in email:
+                error = "Completa el nombre del negocio, el usuario y un correo válido."
+            elif len(password) < MIN_PASSWORD:
+                error = f"La contraseña debe tener al menos {MIN_PASSWORD} caracteres."
+            elif not acepto:
+                error = "Debes aceptar los términos y condiciones para crear tu cuenta."
+            elif Usuario.query.filter_by(username=username).first():
+                error = "Ese usuario ya está en uso. Elige otro."
+            elif Usuario.query.filter_by(email=email).first():
+                error = "Ya existe una cuenta con ese correo."
             else:
-                username = request.form.get("username", "").strip()
-                password = request.form.get("password", "")
-                acepto = request.form.get("acepto_terminos") == "on"
-                if not username or len(password) < 4:
-                    error = "El usuario no puede estar vacío y la contraseña debe tener al menos 4 caracteres."
-                elif not acepto:
-                    error = "Debes aceptar los términos y condiciones para crear tu cuenta."
-                else:
-                    db.session.add(Usuario(
+                try:
+                    negocio = Negocio(nombre=negocio_nombre)
+                    db.session.add(negocio)
+                    db.session.flush()
+                    usuario = Usuario(
+                        negocio_id=negocio.id,
                         username=username,
+                        email=email,
                         password_hash=generate_password_hash(password),
+                        rol="dueno",
                         terminos_aceptados_en=datetime.utcnow(),
-                    ))
+                    )
+                    db.session.add(usuario)
                     db.session.commit()
-                    return redirect(url_for("login"))
-        return render_template("setup.html", error=error, csrf_token=csrf_token())
+                except IntegrityError:
+                    db.session.rollback()
+                    error = "Ese usuario o correo ya está en uso."
+                else:
+                    _registros_ip[request.remote_addr].append(time.time())
+                    session.clear()
+                    session["usuario_id"] = usuario.id
+                    session["negocio_id"] = negocio.id
+                    return redirect(url_for("index"))
+        return render_template(
+            "registro.html", error=error, csrf_token=csrf_token(), valores=request.form,
+            min_password=MIN_PASSWORD,
+        )
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
-        if Usuario.query.count() == 0:
-            return redirect(url_for("setup"))
+        if "usuario_id" in session:
+            return redirect(url_for("index"))
         error = None
         if request.method == "POST":
             if not csrf_valido():
                 error = "Tu sesión expiró, intenta de nuevo."
             elif _bloqueado():
-                error = f"Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo."
+                error = "Demasiados intentos fallidos. Espera unos minutos e intenta de nuevo."
             else:
                 username = request.form.get("username", "")
                 password = request.form.get("password", "")
                 usuario = Usuario.query.filter_by(username=username).first()
                 if usuario and check_password_hash(usuario.password_hash, password):
-                    _limpiar_intentos()
-                    session.clear()
-                    session["usuario_id"] = usuario.id
-                    return redirect(url_for("index"))
-                _registrar_intento_fallido()
-                error = "Usuario o contraseña incorrectos."
+                    if not usuario.negocio.activo:
+                        error = "Esta cuenta está suspendida. Contacta a soporte."
+                    else:
+                        _limpiar_intentos()
+                        session.clear()
+                        session["usuario_id"] = usuario.id
+                        session["negocio_id"] = usuario.negocio_id
+                        return redirect(url_for("index"))
+                else:
+                    _registrar_intento_fallido()
+                    error = "Usuario o contraseña incorrectos."
         return render_template("login.html", error=error, csrf_token=csrf_token())
 
     @app.route("/logout")
@@ -181,13 +276,13 @@ def create_app():
     @app.route("/")
     @login_required
     def index():
-        return render_template("index.html")
+        return render_template("index.html", negocio_nombre=g.negocio.nombre)
 
     # ----------------------------------------------------------- categorias
     @app.route("/api/categorias", methods=["GET"])
     @login_required
     def listar_categorias():
-        return jsonify([c.to_dict() for c in Categoria.query.order_by(Categoria.nombre).all()])
+        return jsonify([c.to_dict() for c in mis(Categoria).order_by(Categoria.nombre).all()])
 
     @app.route("/api/categorias", methods=["POST"])
     @login_required
@@ -196,18 +291,24 @@ def create_app():
         nombre = (data.get("nombre") or "").strip()
         if not nombre:
             return jsonify({"error": "El nombre no puede estar vacío"}), 400
-        if Categoria.query.filter_by(nombre=nombre).first():
-            return jsonify({"error": "Ya existe esa categoría"}), 400
-        categoria = Categoria(nombre=nombre)
+        categoria = Categoria(negocio_id=g.negocio.id, nombre=nombre)
         db.session.add(categoria)
-        db.session.commit()
+        err = guardar_o_error("Ya existe esa categoría")
+        if err:
+            return err
         return jsonify(categoria.to_dict()), 201
+
+    def categoria_valida(categoria_id):
+        """True si la categoría es None (sin categoría) o pertenece a mi negocio."""
+        if categoria_id is None:
+            return True
+        return mis(Categoria).filter_by(id=categoria_id).first() is not None
 
     # ------------------------------------------------------------ productos
     @app.route("/api/productos", methods=["GET"])
     @login_required
     def listar_productos():
-        productos = Producto.query.filter_by(activo=True).order_by(Producto.nombre).all()
+        productos = mis(Producto).filter_by(activo=True).order_by(Producto.nombre).all()
         return jsonify([p.to_dict() for p in productos])
 
     @app.route("/api/productos", methods=["POST"])
@@ -215,23 +316,29 @@ def create_app():
     def crear_producto():
         data = request.get_json(force=True)
         try:
+            categoria_id = int(data["categoria_id"]) if data.get("categoria_id") else None
             producto = Producto(
+                negocio_id=g.negocio.id,
                 nombre=data["nombre"],
                 costo=float(data["costo"]),
                 precio_actual=float(data["precio"]),
                 stock=int(data.get("stock", 0)),
-                categoria_id=int(data["categoria_id"]) if data.get("categoria_id") else None,
+                categoria_id=categoria_id,
             )
         except (KeyError, ValueError) as e:
             return jsonify({"error": f"Datos inválidos: {e}"}), 400
+        if not categoria_valida(categoria_id):
+            return jsonify({"error": "Categoría no válida"}), 400
         db.session.add(producto)
-        db.session.commit()
+        err = guardar_o_error("Ya existe un producto con ese nombre")
+        if err:
+            return err
         return jsonify(producto.to_dict()), 201
 
     @app.route("/api/productos/<int:producto_id>", methods=["PUT"])
     @login_required
     def editar_producto(producto_id):
-        producto = Producto.query.get_or_404(producto_id)
+        producto = mio_o_404(Producto, producto_id)
         data = request.get_json(force=True)
         try:
             if "nombre" in data:
@@ -241,16 +348,21 @@ def create_app():
             if "stock" in data:
                 producto.stock = int(data["stock"])
             if "categoria_id" in data:
-                producto.categoria_id = int(data["categoria_id"]) if data["categoria_id"] else None
+                nueva = int(data["categoria_id"]) if data["categoria_id"] else None
+                if not categoria_valida(nueva):
+                    return jsonify({"error": "Categoría no válida"}), 400
+                producto.categoria_id = nueva
         except ValueError as e:
             return jsonify({"error": f"Datos inválidos: {e}"}), 400
-        db.session.commit()
+        err = guardar_o_error("Ya existe un producto con ese nombre")
+        if err:
+            return err
         return jsonify(producto.to_dict())
 
     @app.route("/api/productos/<int:producto_id>", methods=["DELETE"])
     @login_required
     def eliminar_producto(producto_id):
-        producto = Producto.query.get_or_404(producto_id)
+        producto = mio_o_404(Producto, producto_id)
         producto.activo = False
         db.session.commit()
         return jsonify({"ok": True})
@@ -258,7 +370,7 @@ def create_app():
     @app.route("/api/productos/<int:producto_id>/precio", methods=["PUT"])
     @login_required
     def actualizar_precio(producto_id):
-        producto = Producto.query.get_or_404(producto_id)
+        producto = mio_o_404(Producto, producto_id)
         data = request.get_json(force=True)
         try:
             nuevo_precio = float(data["precio"])
@@ -278,21 +390,25 @@ def create_app():
     @app.route("/api/productos/<int:producto_id>/historial", methods=["GET"])
     @login_required
     def historial_precio(producto_id):
-        producto = Producto.query.get_or_404(producto_id)
+        producto = mio_o_404(Producto, producto_id)
         return jsonify([h.to_dict() for h in producto.historial_precios])
 
     # ---------------------------------------------------------------- capital
     @app.route("/api/capital", methods=["GET"])
     @login_required
     def listar_capital():
-        return jsonify([c.to_dict() for c in Capital.query.order_by(Capital.fecha.desc()).all()])
+        return jsonify([c.to_dict() for c in mis(Capital).order_by(Capital.fecha.desc()).all()])
 
     @app.route("/api/capital", methods=["POST"])
     @login_required
     def registrar_capital():
         data = request.get_json(force=True)
         try:
-            aporte = Capital(monto=float(data["monto"]), descripcion=data.get("descripcion"))
+            aporte = Capital(
+                negocio_id=g.negocio.id,
+                monto=float(data["monto"]),
+                descripcion=data.get("descripcion"),
+            )
         except (KeyError, ValueError):
             return jsonify({"error": "Debes enviar 'monto' numérico"}), 400
         db.session.add(aporte)
@@ -303,7 +419,7 @@ def create_app():
     @app.route("/api/gastos", methods=["GET"])
     @login_required
     def listar_gastos():
-        return jsonify([g.to_dict() for g in Gasto.query.order_by(Gasto.fecha.desc()).all()])
+        return jsonify([g_.to_dict() for g_ in mis(Gasto).order_by(Gasto.fecha.desc()).all()])
 
     @app.route("/api/gastos", methods=["POST"])
     @login_required
@@ -311,6 +427,7 @@ def create_app():
         data = request.get_json(force=True)
         try:
             gasto = Gasto(
+                negocio_id=g.negocio.id,
                 descripcion=data["descripcion"],
                 monto=float(data["monto"]),
                 categoria=data.get("categoria"),
@@ -325,7 +442,7 @@ def create_app():
     @app.route("/api/clientes", methods=["GET"])
     @login_required
     def listar_clientes():
-        return jsonify([c.to_dict() for c in Cliente.query.order_by(Cliente.nombre).all()])
+        return jsonify([c.to_dict() for c in mis(Cliente).order_by(Cliente.nombre).all()])
 
     @app.route("/api/clientes", methods=["POST"])
     @login_required
@@ -334,7 +451,7 @@ def create_app():
         nombre = (data.get("nombre") or "").strip()
         if not nombre:
             return jsonify({"error": "El nombre es requerido"}), 400
-        cliente = Cliente(nombre=nombre, contacto=data.get("contacto"))
+        cliente = Cliente(negocio_id=g.negocio.id, nombre=nombre, contacto=data.get("contacto"))
         db.session.add(cliente)
         db.session.commit()
         return jsonify(cliente.to_dict()), 201
@@ -343,7 +460,7 @@ def create_app():
     @app.route("/api/metas", methods=["GET"])
     @login_required
     def listar_metas():
-        return jsonify(logic.progreso_metas())
+        return jsonify(logic.progreso_metas(g.negocio.id))
 
     @app.route("/api/metas", methods=["POST"])
     @login_required
@@ -353,6 +470,7 @@ def create_app():
             inicio = datetime.fromisoformat(data["fecha_inicio"])
             fin_date = datetime.fromisoformat(data["fecha_fin"]).date()
             meta = Meta(
+                negocio_id=g.negocio.id,
                 descripcion=data["descripcion"],
                 monto_objetivo=float(data["monto_objetivo"]),
                 fecha_inicio=inicio,
@@ -372,58 +490,64 @@ def create_app():
         monto_pagado = data.get("monto_pagado")
         try:
             monto_pagado = float(monto_pagado) if monto_pagado is not None else None
-        except ValueError:
-            return jsonify({"error": "monto_pagado debe ser numérico"}), 400
+            cliente_id = int(data["cliente_id"]) if data.get("cliente_id") else None
+        except (TypeError, ValueError):
+            return jsonify({"error": "monto_pagado y cliente_id deben ser numéricos"}), 400
 
         try:
             ticket = logic.registrar_ticket(
+                negocio_id=g.negocio.id,
                 items_data=data.get("items") or [],
                 metodo_pago=data.get("metodo_pago"),
                 monto_pagado=monto_pagado,
-                cliente_id=int(data["cliente_id"]) if data.get("cliente_id") else None,
+                cliente_id=cliente_id,
             )
-        except logic.ErrorVenta as e:
+        except (logic.ErrorVenta, TypeError, ValueError) as e:
             db.session.rollback()
-            return jsonify({"error": str(e)}), 400
+            mensaje = str(e) if isinstance(e, logic.ErrorVenta) else "Datos de venta inválidos"
+            return jsonify({"error": mensaje}), 400
 
         return jsonify(ticket.to_dict()), 201
 
     @app.route("/api/tickets", methods=["GET"])
     @login_required
     def listar_tickets():
-        tickets = Ticket.query.order_by(Ticket.fecha.desc()).all()
+        tickets = mis(Ticket).order_by(Ticket.fecha.desc()).all()
         return jsonify([t.to_dict(incluir_items=False) for t in tickets])
 
     @app.route("/api/tickets/<int:ticket_id>", methods=["GET"])
     @login_required
     def ver_ticket(ticket_id):
-        ticket = Ticket.query.get_or_404(ticket_id)
+        ticket = mio_o_404(Ticket, ticket_id)
         return jsonify(ticket.to_dict(incluir_items=True))
 
     @app.route("/api/tickets/<int:ticket_id>/marcar-pagado", methods=["POST"])
     @login_required
     def marcar_pagado(ticket_id):
-        ticket = Ticket.query.get_or_404(ticket_id)
+        ticket = mio_o_404(Ticket, ticket_id)
         logic.marcar_ticket_pagado(ticket)
         return jsonify(ticket.to_dict())
 
     @app.route("/api/cuentas-por-cobrar", methods=["GET"])
     @login_required
     def cuentas_por_cobrar():
-        return jsonify([t.to_dict(incluir_items=False) for t in logic.cuentas_por_cobrar()])
+        return jsonify([t.to_dict(incluir_items=False) for t in logic.cuentas_por_cobrar(g.negocio.id)])
 
     # ------------------------------------------------------------- inventario
     @app.route("/api/inventario/alertas", methods=["GET"])
     @login_required
     def alertas_inventario():
-        productos = Producto.query.filter_by(activo=True).all()
+        productos = mis(Producto).filter_by(activo=True).all()
         return jsonify([p.to_dict() for p in productos if p.stock_bajo])
 
     @app.route("/api/inventario/conteo", methods=["POST"])
     @login_required
     def registrar_conteo():
         data = request.get_json(force=True)
-        producto = Producto.query.get_or_404(int(data.get("producto_id", 0)))
+        producto_id = entero_o_none(data.get("producto_id"))
+        if producto_id is None:
+            return jsonify({"error": "producto_id inválido"}), 400
+        producto = mio_o_404(Producto, producto_id)
         try:
             contado = int(data["stock_contado"])
         except (KeyError, ValueError):
@@ -442,18 +566,21 @@ def create_app():
     @app.route("/api/resumen", methods=["GET"])
     @login_required
     def resumen():
-        return jsonify(logic.resumen_financiero())
+        return jsonify(logic.resumen_financiero(g.negocio.id))
 
     @app.route("/api/ranking", methods=["GET"])
     @login_required
     def ranking():
-        return jsonify(logic.ranking_productos())
+        return jsonify(logic.ranking_productos(g.negocio.id))
 
     @app.route("/api/simular-precio", methods=["POST"])
     @login_required
     def simular_precio():
         data = request.get_json(force=True)
-        producto = Producto.query.get_or_404(int(data.get("producto_id", 0)))
+        producto_id = entero_o_none(data.get("producto_id"))
+        if producto_id is None:
+            return jsonify({"error": "producto_id inválido"}), 400
+        producto = mio_o_404(Producto, producto_id)
         try:
             porcentaje = float(data["porcentaje"])
         except (KeyError, ValueError):
@@ -464,12 +591,12 @@ def create_app():
     @login_required
     def ventas_por_periodo():
         agrupacion = request.args.get("agrupacion", "dia")
-        return jsonify(logic.ventas_por_periodo(agrupacion))
+        return jsonify(logic.ventas_por_periodo(g.negocio.id, agrupacion))
 
     @app.route("/api/reportes/ventas.xlsx", methods=["GET"])
     @login_required
     def reporte_ventas_excel():
-        tickets = Ticket.query.order_by(Ticket.fecha).all()
+        tickets = mis(Ticket).order_by(Ticket.fecha).all()
         buf = rep.generar_excel_ventas(tickets)
         return send_file(
             buf, as_attachment=True, download_name="ventas.xlsx",
@@ -479,9 +606,9 @@ def create_app():
     @app.route("/api/reportes/resumen.pdf", methods=["GET"])
     @login_required
     def reporte_resumen_pdf():
-        resumen_data = logic.resumen_financiero()
-        tickets = Ticket.query.order_by(Ticket.fecha.desc()).all()
-        buf = rep.generar_pdf_resumen(resumen_data, tickets)
+        resumen_data = logic.resumen_financiero(g.negocio.id)
+        tickets = mis(Ticket).order_by(Ticket.fecha.desc()).all()
+        buf = rep.generar_pdf_resumen(resumen_data, tickets, negocio_nombre=g.negocio.nombre)
         return send_file(buf, as_attachment=True, download_name="reporte.pdf", mimetype="application/pdf")
 
     return app

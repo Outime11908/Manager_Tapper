@@ -268,3 +268,14 @@ td.vacio { text-align: center; font-style: italic; padding: 16px 10px; }
 .auth-form input { min-width: 0; width: 100%; }
 .auth-form button { width: 100%; margin-top: 4px; }
 .auth-error { color: var(--loss); font-size: 0.88rem; background: rgba(155, 58, 44, 0.08); padding: 8px 12px; border-left: 3px solid var(--loss); }
+
+/* ---- enlaces y checkbox de las pantallas de acceso ---- */
+.auth-form label.auth-checkbox { flex-direction: row; align-items: center; gap: 8px; }
+.auth-form label.auth-checkbox input { width: auto; }
+.auth-terminos-link, .auth-volver { display: block; margin-top: 14px; text-align: center; font-size: 0.85rem; color: var(--brass); }
+.auth-terminos-link:hover, .auth-volver:hover { color: var(--brass-hover); }
+.auth-main:has(.terminos-card) { max-width: 560px; }
+.terminos-texto p { font-size: 0.9rem; line-height: 1.5; margin: 0 0 12px; color: var(--ink-soft); }
+.terminos-texto strong { color: var(--ink-text); }
+.auth-checkbox a { color: var(--brass); }
+.auth-checkbox a:hover { color: var(--brass-hover); }

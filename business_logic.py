@@ -5,32 +5,33 @@ rutas de Flask, para que sea fácil de probar y de explicar en el proyecto.
 from collections import defaultdict
 from datetime import datetime
 
-from models import db, Producto, DetalleVenta, Ticket, Capital, Gasto, Meta
+from models import db, Producto, DetalleVenta, Ticket, Capital, Gasto, Meta, Cliente
 
 
 # ---------------------------------------------------------------------------
 # Ganancias, gastos y punto de equilibrio
 # ---------------------------------------------------------------------------
 
-def ganancia_bruta_total():
-    """Suma la ganancia (precio - costo) x cantidad de todas las líneas de venta."""
+def ganancia_bruta_total(negocio_id):
+    """Suma la ganancia (precio - costo) x cantidad de todas las líneas de venta del negocio."""
     total = 0.0
-    for detalle in DetalleVenta.query.all():
+    detalles = DetalleVenta.query.join(Ticket).filter(Ticket.negocio_id == negocio_id).all()
+    for detalle in detalles:
         total += detalle.ganancia
     return total
 
 
-def capital_total_invertido():
-    total = db.session.query(db.func.sum(Capital.monto)).scalar()
+def capital_total_invertido(negocio_id):
+    total = db.session.query(db.func.sum(Capital.monto)).filter(Capital.negocio_id == negocio_id).scalar()
     return total or 0.0
 
 
-def gastos_totales():
-    total = db.session.query(db.func.sum(Gasto.monto)).scalar()
+def gastos_totales(negocio_id):
+    total = db.session.query(db.func.sum(Gasto.monto)).filter(Gasto.negocio_id == negocio_id).scalar()
     return total or 0.0
 
 
-def resumen_financiero():
+def resumen_financiero(negocio_id):
     """
     Punto de equilibrio: compara el capital invertido contra la ganancia
     bruta (por venta de producto) acumulada. "falta_para_recuperar" indica
@@ -41,9 +42,9 @@ def resumen_financiero():
     equilibrio se deja calculado sobre la ganancia bruta por producto para
     no mezclar dos cosas distintas en una sola métrica.
     """
-    ganancia_bruta = ganancia_bruta_total()
-    capital = capital_total_invertido()
-    gastos = gastos_totales()
+    ganancia_bruta = ganancia_bruta_total(negocio_id)
+    capital = capital_total_invertido(negocio_id)
+    gastos = gastos_totales(negocio_id)
     falta_para_recuperar = max(capital - ganancia_bruta, 0.0)
     punto_equilibrio_alcanzado = ganancia_bruta >= capital and capital > 0
 
@@ -69,8 +70,8 @@ def _metricas_producto(producto):
     return unidades_vendidas, ganancia_generada
 
 
-def ranking_productos():
-    productos = Producto.query.filter_by(activo=True).all()
+def ranking_productos(negocio_id):
+    productos = Producto.query.filter_by(negocio_id=negocio_id, activo=True).all()
     if not productos:
         return []
 
@@ -146,18 +147,22 @@ class ErrorVenta(Exception):
     """Error de validación al registrar una venta (carrito, stock, pago, etc.)."""
 
 
-def registrar_ticket(items_data, metodo_pago, monto_pagado=None, cliente_id=None):
+def registrar_ticket(negocio_id, items_data, metodo_pago, monto_pagado=None, cliente_id=None):
     if not items_data:
         raise ErrorVenta("El carrito está vacío")
     if metodo_pago not in ("efectivo", "tarjeta", "credito"):
         raise ErrorVenta("El método de pago debe ser 'efectivo', 'tarjeta' o 'credito'")
     if metodo_pago == "credito" and not cliente_id:
         raise ErrorVenta("Una venta a crédito necesita un cliente")
+    if cliente_id:
+        # el cliente debe ser de ESTE negocio (nunca de otro)
+        if not Cliente.query.filter_by(id=cliente_id, negocio_id=negocio_id).first():
+            raise ErrorVenta("Cliente no válido")
 
     renglones = []
     total = 0.0
     for item in items_data:
-        producto = Producto.query.get(int(item.get("producto_id", 0)))
+        producto = Producto.query.filter_by(id=int(item.get("producto_id", 0)), negocio_id=negocio_id).first()
         if not producto or not producto.activo:
             raise ErrorVenta("Hay un producto inválido en el carrito")
         cantidad = int(item.get("cantidad", 0))
@@ -177,6 +182,7 @@ def registrar_ticket(items_data, metodo_pago, monto_pagado=None, cliente_id=None
         cambio = monto_pagado - total
 
     ticket = Ticket(
+        negocio_id=negocio_id,
         metodo_pago=metodo_pago,
         total=total,
         monto_pagado=monto_pagado,
@@ -208,15 +214,15 @@ def marcar_ticket_pagado(ticket):
     return ticket
 
 
-def cuentas_por_cobrar():
-    return Ticket.query.filter_by(pagado=False).order_by(Ticket.fecha.desc()).all()
+def cuentas_por_cobrar(negocio_id):
+    return Ticket.query.filter_by(negocio_id=negocio_id, pagado=False).order_by(Ticket.fecha.desc()).all()
 
 
 # ---------------------------------------------------------------------------
 # Ventas por periodo (para la gráfica de tendencia)
 # ---------------------------------------------------------------------------
 
-def ventas_por_periodo(agrupacion="dia"):
+def ventas_por_periodo(negocio_id, agrupacion="dia"):
     if agrupacion == "semana":
         clave = lambda f: f.strftime("%G-W%V")
     elif agrupacion == "mes":
@@ -225,7 +231,7 @@ def ventas_por_periodo(agrupacion="dia"):
         clave = lambda f: f.strftime("%Y-%m-%d")
 
     totales = defaultdict(float)
-    for ticket in Ticket.query.all():
+    for ticket in Ticket.query.filter_by(negocio_id=negocio_id).all():
         totales[clave(ticket.fecha)] += ticket.total
 
     periodos = sorted(totales.keys())
@@ -236,12 +242,12 @@ def ventas_por_periodo(agrupacion="dia"):
 # Metas de venta
 # ---------------------------------------------------------------------------
 
-def progreso_metas():
-    metas = Meta.query.order_by(Meta.fecha_inicio.desc()).all()
+def progreso_metas(negocio_id):
+    metas = Meta.query.filter_by(negocio_id=negocio_id).order_by(Meta.fecha_inicio.desc()).all()
     resultado = []
     for m in metas:
         acumulado = 0.0
-        for t in Ticket.query.filter(Ticket.fecha >= m.fecha_inicio, Ticket.fecha <= m.fecha_fin).all():
+        for t in Ticket.query.filter(Ticket.negocio_id == negocio_id, Ticket.fecha >= m.fecha_inicio, Ticket.fecha <= m.fecha_fin).all():
             acumulado += t.total
         porcentaje = (acumulado / m.monto_objetivo * 100) if m.monto_objetivo else 0
         data = m.to_dict()
